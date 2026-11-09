@@ -15,7 +15,7 @@ const state = {
       address: '[Full address]',
       description: 'Add a short description (arrival time, doors open, ceremony start).',
       mapsUrl: 'https://www.google.com/maps?q=51.5074,-0.1278',
-      coords: null // { lat: 51.5074, lng: -0.1278 }
+      coords: null
     },
     {
       id: 'reception',
@@ -138,28 +138,72 @@ function showStatus(msg, kind = 'info'){
   elStatus.style.color = kind === 'error' ? '#dc2626' : (kind === 'success' ? '#16a34a' : '#6b7280');
 }
 
+function initFullpage(){
+  if (!window.$ || !window.fullpage){
+    console.warn('fullPage dependencies not loaded yet');
+    return null;
+  }
+
+  window.$('#fullpage').fullpage({
+    anchors: ['intro', 'cover', 'venues', 'rsvp', 'faq'],
+    navigation: false,
+    navigationTooltips: false,
+    showActiveTooltip: false,
+
+    // presentation feel
+    autoScrolling: true,
+    fitToSection: true,
+    scrollHorizontally: false,
+
+    // allow inner scrolling for forms/details
+    scrollOverflow: true,
+
+    // ensure touch friendliness
+    touchSensitivity: 10,
+
+    afterLoad: function(){
+      // Until the envelope is opened, keep the user from moving away from the intro slide.
+      if (!document.body.classList.contains('opened')){
+        window.fullpage_api?.setAllowScrolling(false);
+        window.fullpage_api?.setKeyboardScrolling(false);
+      }
+    }
+  });
+
+  // Lock immediately (best-effort; fullpage_api should exist after init)
+  window.fullpage_api?.setAllowScrolling(false);
+  window.fullpage_api?.setKeyboardScrolling(false);
+
+  return window.fullpage_api;
+}
+
 let lastSubmitted = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+
+  renderVenues();
+
+  const fp = initFullpage();
+
   // Envelope open interaction
   const btn = document.getElementById('openEnvelopeBtn');
-  const cover = document.getElementById('slide-cover');
-
   const open = () => {
     if (document.body.classList.contains('opened')) return;
     document.body.classList.add('opened');
-    document.body.classList.remove('locked');
 
-    if (cover) cover.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    fp?.setAllowScrolling(true);
+    fp?.setKeyboardScrolling(true);
+
+    // Move to cover (section 2)
+    fp?.moveSectionDown();
   };
 
   btn?.addEventListener('click', open);
   btn?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') open();
   });
-
-  // Venues
-  renderVenues();
 
   // RSVP
   const form = document.getElementById('rsvpForm');
@@ -208,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveRsvps(entries.slice(0, 50));
     lastSubmitted = rsvp;
 
-    showStatus('Thanks! Your RSVP has been saved on this device. Next: we’ll connect real submissions.', 'success');
+    showStatus('Thanks! Your RSVP has been saved on this device.', 'success');
   });
 
   downloadBtn?.addEventListener('click', () => {
@@ -223,8 +267,4 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     showStatus('Downloaded your RSVP file.', 'success');
   });
-
-  // Footer year
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 });

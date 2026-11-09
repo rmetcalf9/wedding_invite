@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Robert & Elizabeth — Wedding Invite</title>
   <meta name="description" content="Wedding invitation with RSVP" />
+
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullpage.js@5.0.9/dist/fullpage.min.css" />
   <meta name="theme-color" content="#b7791f" />
 </head>
-<body class="locked" data-noscript="">
-  <a class="skip-link" href="#slides">Skip to invitation</a>
+<body>
+  <a class="skip-link" href="#slide-cover">Skip to invitation</a>
 
-  <div class="slides" id="slides" aria-label="Wedding invitation slideshow">
+  <!-- fullPage.js root -->
+  <div id="fullpage">
     <!-- Intro / envelope -->
-    <section class="slide slide--intro" id="slide-intro" aria-label="Intro envelope">
+    <section class="section section--intro" id="slide-intro" aria-label="Intro envelope">
       <div class="intro">
         <div class="intro__frame" aria-hidden="true">
           <div class="envelope" role="img" aria-label="Invitation envelope">
@@ -33,31 +36,31 @@
     </section>
 
     <!-- Cover -->
-    <section class="slide slide--cover" id="slide-cover" aria-label="Wedding cover">
-      <header class="cover">
+    <section class="section section--cover" id="slide-cover" aria-label="Wedding cover">
+      <div class="cover">
         <div class="cover__inner">
           <div class="cover__line1">Robert &amp; Elizabeth</div>
           <div class="cover__line2">are getting married</div>
           <div class="cover__date">Saturday 17 July 2027</div>
+
+          <div class="cover__scrollHint" aria-label="Scroll hint">
+            SCROLL DOWN TO EXPLORE &nbsp;-&nbsp; RSVP BELOW
+          </div>
         </div>
 
-        <div class="cover__scrollHint" aria-label="Scroll hint">
-          SCROLL DOWN TO EXPLORE &nbsp;-&nbsp; RSVP BELOW
+        <div class="cover__cta" aria-label="Quick links">
+          <a class="linkBtn" href="#venues">Explore venues</a>
+          <a class="linkBtn linkBtn--ghost" href="#rsvp">Go to RSVP</a>
         </div>
-      </header>
-
-      <div class="cover__cta">
-        <a class="linkBtn" href="#slide-venues">Explore venues</a>
-        <a class="linkBtn linkBtn--ghost" href="#slide-rsvp">Go to RSVP</a>
       </div>
     </section>
 
     <!-- Venues -->
-    <section class="slide slide--venues" id="slide-venues" aria-labelledby="venues-title">
+    <section class="section" id="slide-venues" aria-label="Venues">
       <div class="slide__content container">
         <div class="slide__head">
-          <h2 id="venues-title">Venues &amp; maps</h2>
-          <p class="muted">Tap “Open map” to navigate. If you add coordinates, an embedded map appears too.</p>
+          <h2>Venues &amp; maps</h2>
+          <p class="muted">Tap “Open map” to navigate. Add coordinates (optional) to show embedded maps.</p>
         </div>
 
         <div id="venuesGrid" class="venuesGrid" role="list" aria-label="Venue list">
@@ -65,17 +68,17 @@
         </div>
 
         <div class="noteCard" role="note">
-          <strong>Tip:</strong> For best results, fill in venue addresses and (optionally) coordinates in <code>app.js</code>.
+          <strong>Tip:</strong> Update venue addresses (and optional coordinates) in <code>app.js</code>.
         </div>
       </div>
     </section>
 
     <!-- RSVP -->
-    <section class="slide slide--rsvp" id="slide-rsvp" aria-labelledby="rsvp-title">
+    <section class="section" id="slide-rsvp" aria-label="RSVP">
       <div class="slide__content container">
         <div class="slide__head">
-          <h2 id="rsvp-title">RSVP</h2>
-          <p class="muted">Choose your answer below. (This demo stores RSVPs on the device; we can wire submissions to a form service next.)</p>
+          <h2>RSVP</h2>
+          <p class="muted">Choose your answer below. (This demo stores RSVPs on the device.)</p>
         </div>
 
         <div class="rsvpGrid">
@@ -130,17 +133,16 @@
             <div class="divider"></div>
             <p class="muted">RSVP deadline: <strong>[Deadline date]</strong></p>
             <p class="muted">Contact: <strong>[Your contact email/phone]</strong></p>
-            <p class="muted">You can change this copy in <code>index.html</code>.</p>
           </aside>
         </div>
       </div>
     </section>
 
     <!-- FAQ -->
-    <section class="slide slide--faq" id="slide-faq" aria-labelledby="faq-title">
+    <section class="section" id="slide-faq" aria-label="Info and FAQs">
       <div class="slide__content container">
         <div class="slide__head">
-          <h2 id="faq-title">Info &amp; FAQs</h2>
+          <h2>Info &amp; FAQs</h2>
           <p class="muted">Edit these sections to match your wedding details.</p>
         </div>
 
@@ -166,12 +168,16 @@
         <footer class="footer" aria-label="Footer">
           <div class="footer__inner">
             <div class="muted">© <span id="year"></span> Robert &amp; Elizabeth</div>
-            <div class="muted">Built for mobile + desktop • Hosted on GitHub Pages</div>
+            <div class="muted">Hosted on GitHub Pages</div>
           </div>
         </footer>
       </div>
     </section>
   </div>
+
+  <!-- Dependencies for fullPage.js (jQuery-based) -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullpage.js@5.0.9/dist/fullpage.min.js"></script>
 
   <script src="./app.js" type="module"></script>
 </body>
