@@ -1,161 +1,165 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Robert &amp; Elizabeth — Wedding</title>
-  <meta name="description" content="Wedding invitation + RSVP" />
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullpage.js@5.0.9/dist/fullpage.min.css" />
-  <link rel="stylesheet" href="./styles.css" />
-  <meta name="theme-color" content="#111827" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f4ee">
+  <meta name="description" content="You're invited to celebrate our wedding.">
+  <title>We're getting married — Alex & Jamie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="script.js"></script>
 </head>
 <body>
-  <!-- Native fullpage scroll container -->
-  <div id="fullpage">
-    <!-- 1) Envelope intro -->
-    <section class="section fp-section" data-anchor="intro">
-      <div class="slide">
-        <div class="bg" aria-hidden="true"></div>
-        <div class="content">
-          <div class="brand">Robert &amp; Elizabeth</div>
-          <div class="envelope" role="img" aria-label="Wedding invitation envelope">
-            <div class="envelope__back"></div>
-            <div class="envelope__front"></div>
-            <div class="envelope__flap" id="envelopeFlap"></div>
-            <div class="envelope__seal" aria-hidden="true">♥</div>
-          </div>
+  <header class="site-header">
+    <a class="wordmark" href="#home" aria-label="Alex and Jamie, home">A <span>&</span> J</a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">
+      <span></span><span></span>
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="Main navigation">
+      <a href="#story">Our story</a>
+      <a href="#details">The day</a>
+      <a href="#travel">Travel</a>
+      <a class="nav-rsvp" href="#rsvp">RSVP</a>
+    </nav>
+  </header>
 
-          <button class="primary" id="openBtn" type="button">
-            Tap to open your invitation
-          </button>
-          <p class="hint">We can’t wait to share our day with you.</p>
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-image" role="img" aria-label="A romantic wedding celebration"></div>
+      <div class="hero-shade"></div>
+      <div class="hero-content">
+        <p class="eyebrow light">TOGETHER WITH OUR FAMILIES</p>
+        <h1>Alex <em>&</em> Jamie</h1>
+        <p class="hero-subtitle">ARE GETTING MARRIED</p>
+        <div class="hero-rule"></div>
+        <p class="hero-date">SATURDAY · 12 JUNE 2027</p>
+        <a class="text-link light-link" href="#welcome">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a>
+      </div>
+      <p class="hero-side-note">A DAY TO REMEMBER</p>
+    </section>
+
+    <section class="welcome section-pad" id="welcome">
+      <p class="eyebrow">WITH LOVE, WE INVITE YOU</p>
+      <h2>It wouldn’t be the same<br><em>without you.</em></h2>
+      <p class="intro-copy">We’re so excited to celebrate this next chapter with the people who mean the most to us. Join us for a day of love, laughter, good food and dancing.</p>
+      <div class="date-stamp"><span>12</span><span>JUNE</span><span>2027</span></div>
+    </section>
+
+    <section class="story section-pad" id="story">
+      <div class="story-copy reveal">
+        <p class="eyebrow">A LITTLE ABOUT US</p>
+        <h2>Our story,<br><em>so far.</em></h2>
+        <p>Somehow, one hello turned into a thousand little moments, a lifetime of memories and a promise for all the ones still to come.</p>
+        <p>We can’t wait to celebrate the beginning of our next chapter with you.</p>
+        <a class="text-link" href="#details">THE WEDDING DAY <span aria-hidden="true">→</span></a>
+      </div>
+      <figure class="story-photo reveal">
+        <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85" alt="A couple celebrating their wedding outdoors" loading="lazy">
+        <figcaption>A favourite moment</figcaption>
+      </figure>
+    </section>
+
+    <section class="quote-band">
+      <p>“The best thing to hold onto in life is each other.”</p>
+      <span>— AUDREY HEPBURN</span>
+    </section>
+
+    <section class="details section-pad" id="details">
+      <div class="section-heading reveal">
+        <p class="eyebrow">SAVE THE DATE</p>
+        <h2>The wedding <em>day.</em></h2>
+        <p class="section-intro">A day of celebration, from the first toast to the last dance.</p>
+      </div>
+      <div class="event-grid">
+        <article class="event-card reveal">
+          <span class="event-number">01</span>
+          <p class="eyebrow">THE CEREMONY</p>
+          <h3>Say “I do”</h3>
+          <p class="event-time">1:00 PM</p>
+          <p>St Mary's Church<br>Church Lane, Yourtown</p>
+          <a class="text-link" href="https://maps.google.com/?q=St+Mary%27s+Church+Yourtown" target="_blank" rel="noreferrer">FIND THE CHURCH ↗</a>
+        </article>
+        <article class="event-card event-card-featured reveal">
+          <span class="event-number">02</span>
+          <p class="eyebrow">THE RECEPTION</p>
+          <h3>Eat, drink<br>& be merry</h3>
+          <p class="event-time">3:00 PM</p>
+          <p>The Garden House<br>High Street, Yourtown</p>
+          <a class="text-link" href="https://maps.google.com/?q=The+Garden+House+Yourtown" target="_blank" rel="noreferrer">FIND THE VENUE ↗</a>
+        </article>
+        <article class="event-card reveal">
+          <span class="event-number">03</span>
+          <p class="eyebrow">THE EVENING</p>
+          <h3>Let’s dance</h3>
+          <p class="event-time">7:00 PM</p>
+          <p>Drinks, music and dancing<br>until late.</p>
+          <span class="event-note">Dancing shoes encouraged</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="photo-break" aria-label="Wedding venue atmosphere">
+      <div class="photo-break-overlay">
+        <p class="eyebrow light">GOOD PEOPLE · GOOD FOOD · GREAT MEMORIES</p>
+        <h2>We’ll save you<br><em>a seat.</em></h2>
+      </div>
+    </section>
+
+    <section class="travel section-pad" id="travel">
+      <div class="travel-image reveal">
+        <img src="https://images.unsplash.com/photo-1510076857177-7470076d4098?auto=format&fit=crop&w=1200&q=85" alt="Beautiful countryside venue" loading="lazy">
+      </div>
+      <div class="travel-copy reveal">
+        <p class="eyebrow">MAKING A WEEKEND OF IT?</p>
+        <h2>Getting <em>there.</em></h2>
+        <p>We’d love you to make a little trip of it. Here are a few useful details to help you plan your journey.</p>
+        <div class="travel-detail">
+          <h3>By car</h3>
+          <p>There is parking available at The Garden House. Please follow the signs on arrival.</p>
+        </div>
+        <div class="travel-detail">
+          <h3>By train</h3>
+          <p>Yourtown station is approximately 10 minutes from the venue by taxi.</p>
+        </div>
+        <div class="travel-detail">
+          <h3>Where to stay</h3>
+          <p>We recommend The Town Hotel and The Old Inn. Please book early if you’re staying overnight.</p>
         </div>
       </div>
     </section>
 
-    <!-- 2) Cover -->
-    <section class="section fp-section" data-anchor="cover">
-      <div class="slide">
-        <div class="bg" aria-hidden="true"></div>
-        <div class="content content--center">
-          <div class="title">Robert &amp; Elizabeth</div>
-          <div class="subtitle">are getting married</div>
-          <div class="date">Saturday 17 July 2027</div>
-
-          <div class="actions">
-            <button class="primary" id="exploreBtn" type="button">Explore venues</button>
-            <button class="ghost" id="rsvpBtn" type="button">RSVP</button>
-          </div>
-
-          <div class="scrollLine">SCROLL DOWN TO EXPLORE - RSVP BELOW</div>
-        </div>
+    <section class="rsvp section-pad" id="rsvp">
+      <div class="rsvp-inner reveal">
+        <p class="eyebrow light">KINDLY REPLY BY 1 MAY 2027</p>
+        <h2>Will you <em>join us?</em></h2>
+        <p class="rsvp-intro">Please let us know whether you can make it. We can’t wait to hear from you.</p>
+        <form id="rsvp-form" data-email="hello@example.com">
+          <label for="guest-name">Your name</label>
+          <input id="guest-name" name="name" autocomplete="name" required placeholder="Your full name">
+          <label for="guest-email">Email address</label>
+          <input id="guest-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
+          <fieldset>
+            <legend>Can you make it?</legend>
+            <label class="choice"><input type="radio" name="attendance" value="Joyfully accepts" required> <span>Joyfully accepts</span></label>
+            <label class="choice"><input type="radio" name="attendance" value="Regretfully declines"> <span>Regretfully declines</span></label>
+          </fieldset>
+          <label for="dietary">Dietary requirements or a note for us</label>
+          <textarea id="dietary" name="notes" rows="3" placeholder="Let us know here…"></textarea>
+          <button class="submit-button" type="submit">SEND YOUR RSVP <span aria-hidden="true">→</span></button>
+          <p class="form-note" id="form-message" aria-live="polite">This demo opens an email to the couple. See README to connect a form service.</p>
+        </form>
       </div>
     </section>
+  </main>
 
-    <!-- 3) Venues -->
-    <section class="section fp-section" data-anchor="venues">
-      <div class="slide">
-        <div class="bg" aria-hidden="true"></div>
-        <div class="content content--left">
-          <div class="sectionTitle">Venues &amp; maps</div>
-          <p class="lead">Tap “Open map” to navigate. (Update addresses + maps URLs in <code>app.js</code>.)</p>
-
-          <div id="venuesGrid" class="venuesGrid" aria-label="Venue list"></div>
-
-          <div class="bottomNav">
-            <button class="ghost" id="backToCoverBtn" type="button">Back</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4) RSVP -->
-    <section class="section fp-section" data-anchor="rsvp">
-      <div class="slide">
-        <div class="bg" aria-hidden="true"></div>
-        <div class="content content--left">
-          <div class="sectionTitle">RSVP</div>
-          <p class="lead">Choose your answer below.</p>
-
-          <div class="card">
-            <form id="rsvpForm" novalidate>
-              <label class="field">
-                <span>Your name</span>
-                <input id="guestName" name="guestName" type="text" autocomplete="name" required placeholder="e.g. Robert" />
-              </label>
-
-              <label class="field">
-                <span>Email (optional)</span>
-                <input id="guestEmail" name="guestEmail" type="email" autocomplete="email" placeholder="e.g. name@email.com" />
-              </label>
-
-              <fieldset class="field">
-                <legend>Are you coming?</legend>
-                <label class="radio"><input type="radio" name="attendance" value="yes" required /> <span>Yes, I’m coming</span></label>
-                <label class="radio"><input type="radio" name="attendance" value="no" required /> <span>Sorry, I can’t make it</span></label>
-                <label class="radio"><input type="radio" name="attendance" value="maybe" required /> <span>Maybe</span></label>
-              </fieldset>
-
-              <label class="field">
-                <span>Notes (dietary requirements, +1, questions)</span>
-                <textarea id="notes" name="notes" rows="4" placeholder="Optional"></textarea>
-              </label>
-
-              <div class="formActions">
-                <button class="primary" type="submit">Submit RSVP</button>
-              </div>
-
-              <div class="status" id="formStatus" role="status" aria-live="polite"></div>
-            </form>
-          </div>
-
-          <div class="bottomNav">
-            <button class="ghost" id="faqBtn" type="button">More info</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5) FAQ -->
-    <section class="section fp-section" data-anchor="faq">
-      <div class="slide">
-        <div class="bg" aria-hidden="true"></div>
-        <div class="content content--left">
-          <div class="sectionTitle">Info &amp; FAQs</div>
-
-          <div class="faqGrid">
-            <details class="faq">
-              <summary>Where should guests park?</summary>
-              <div class="faq__body">[Parking details]</div>
-            </details>
-            <details class="faq">
-              <summary>Is there wheelchair access?</summary>
-              <div class="faq__body">[Access details]</div>
-            </details>
-            <details class="faq">
-              <summary>Can I bring a plus-one?</summary>
-              <div class="faq__body">[Plus-one policy]</div>
-            </details>
-            <details class="faq">
-              <summary>What should I wear?</summary>
-              <div class="faq__body">[Dress code]</div>
-            </details>
-          </div>
-
-          <footer class="footer">
-            <div>© <span id="year"></span> Robert &amp; Elizabeth</div>
-            <div class="muted">Hosted on GitHub Pages</div>
-          </footer>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Dependencies (fullpage.js v5 uses jQuery) -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullpage.js@5.0.9/dist/fullpage.min.js"></script>
-
-  <script src="./app.js" defer></script>
+  <footer class="site-footer">
+    <a class="footer-mark" href="#home">A <span>&</span> J</a>
+    <p>WE CAN’T WAIT TO CELEBRATE WITH YOU</p>
+    <a class="back-top" href="#home">BACK TO TOP ↑</a>
+    <small>MADE WITH LOVE · JUNE 2027</small>
+  </footer>
 </body>
 </html>
