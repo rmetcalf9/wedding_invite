@@ -1,12 +1,6 @@
-const GUESTS_STORAGE_KEY = 'wedding_rsvps_v1';
+/* Fullpage + invitation logic */
 
 const state = {
-  event: {
-    coupleLine: 'Robert & Elizabeth',
-    dateLine: 'Saturday 17 July 2027',
-    rsvpDeadline: '[Deadline date]',
-    contactLine: '[Your contact email/phone]'
-  },
   venues: [
     {
       id: 'ceremony',
@@ -15,7 +9,7 @@ const state = {
       address: '[Full address]',
       description: 'Add a short description (arrival time, doors open, ceremony start).',
       mapsUrl: 'https://www.google.com/maps?q=51.5074,-0.1278',
-      coords: null
+      coords: null // { lat: 51.5074, lng: -0.1278 }
     },
     {
       id: 'reception',
@@ -26,31 +20,39 @@ const state = {
       mapsUrl: 'https://www.google.com/maps?q=51.515,-0.09',
       coords: null
     }
-  ]
+  ],
+  backgrounds: {
+    intro: 'https://source.unsplash.com/1920x1080/?wedding,flowers',
+    cover: 'https://source.unsplash.com/1920x1080/?wedding,rings',
+    venues: 'https://source.unsplash.com/1920x1080/?wedding,venue',
+    rsvp: 'https://source.unsplash.com/1920x1080/?wedding,champagne',
+    faq: 'https://source.unsplash.com/1920x1080/?wedding,romantic'
+  }
 };
 
-function el(tag, attrs = {}, children = []){
-  const node = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)){
-    if (k === 'class') node.className = v;
-    else if (k === 'html') node.innerHTML = v;
-    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2), v);
-    else node.setAttribute(k, String(v));
+const $ = window.jQuery;
+let fp = null;
+let lastSubmitted = null;
+
+function setBackgrounds(){
+  const anchors = ['intro','cover','venues','rsvp','faq'];
+  for (const a of anchors){
+    const section = document.querySelector(`[data-anchor="${a}"]`);
+    const bg = section?.querySelector('.bg');
+    if (section && bg){
+      bg.style.setProperty('--bg-image', `url('${state.backgrounds[a]}')`);
+      // also set as background-image for safety
+      bg.style.backgroundImage = `url('${state.backgrounds[a]}')`;
+    }
   }
-  for (const child of children){
-    if (child == null) continue;
-    if (typeof child === 'string') node.appendChild(document.createTextNode(child));
-    else node.appendChild(child);
-  }
-  return node;
 }
 
-function openMapLabelForVenue(venue){
-  return venue.mapsUrl ? 'Open map' : 'Maps unavailable';
-}
-
-function osmEmbedUrl({lat,lng}){
+function osmEmbedUrl({lat, lng}){
   return `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01}%2C${lat-0.01}%2C${lng+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lng}`;
+}
+
+function openMapLabelForVenue(v){
+  return v.mapsUrl ? 'Open map' : 'Maps unavailable';
 }
 
 function renderVenues(){
@@ -59,30 +61,52 @@ function renderVenues(){
   grid.innerHTML = '';
 
   for (const v of state.venues){
-    const card = el('article', { class: 'venueCard', role: 'listitem' }, [
-      el('div', { class: 'venueCard__top' }, [
-        el('h3', { class: 'venueCard__title' }, [v.name]),
-        el('p', { class: 'venueCard__meta' }, [v.meta || '']),
-        el('p', { class: 'venueCard__desc' }, [v.description || '']),
-        el('div', { class: 'venueCard__actions' }, [
-          el('a', {
-            class: 'btn btn--primary',
-            href: v.mapsUrl || '#',
-            target: '_blank',
-            rel: 'noopener noreferrer'
-          }, [openMapLabelForVenue(v)]),
-          el('span', { class: 'chip', title: 'Address' }, ['📍 ', v.address || ''])
-        ])
-      ])
-    ]);
+    const card = document.createElement('article');
+    card.className = 'venueCard';
+
+    const h = document.createElement('h3');
+    h.textContent = v.name;
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = v.meta || '';
+
+    const desc = document.createElement('p');
+    desc.className = 'desc';
+    desc.textContent = v.description || '';
+
+    const actions = document.createElement('div');
+    actions.className = 'venueActions';
+
+    const mapBtn = document.createElement('a');
+    mapBtn.className = 'primary';
+    mapBtn.style.padding = '10px 14px';
+    mapBtn.style.textDecoration = 'none';
+    mapBtn.style.display = 'inline-flex';
+    mapBtn.style.alignItems = 'center';
+    mapBtn.style.gap = '10px';
+    mapBtn.href = v.mapsUrl || '#';
+    mapBtn.target = '_blank';
+    mapBtn.rel = 'noopener noreferrer';
+    mapBtn.textContent = openMapLabelForVenue(v);
+
+    const chip = document.createElement('div');
+    chip.className = 'chip';
+    chip.textContent = `📍 ${v.address || ''}`;
+
+    actions.appendChild(mapBtn);
+    actions.appendChild(chip);
+
+    card.appendChild(h);
+    card.appendChild(meta);
+    card.appendChild(desc);
+    card.appendChild(actions);
 
     if (v.coords && typeof v.coords.lat === 'number' && typeof v.coords.lng === 'number'){
-      const frame = el('iframe', {
-        class: 'mapFrame',
-        src: osmEmbedUrl(v.coords),
-        loading: 'lazy',
-        referrerpolicy: 'no-referrer-when-downgrade'
-      });
+      const frame = document.createElement('iframe');
+      frame.className = 'mapFrame';
+      frame.src = osmEmbedUrl(v.coords);
+      frame.loading = 'lazy';
       frame.title = `${v.name} map`;
       card.appendChild(frame);
     }
@@ -91,17 +115,16 @@ function renderVenues(){
   }
 }
 
-function loadRsvps(){
-  try{
-    const raw = localStorage.getItem(GUESTS_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  }catch{
-    return [];
-  }
+function showStatus(msg, kind='info'){
+  const el = document.getElementById('formStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = kind === 'error' ? '#dc2626' : (kind === 'success' ? '#16a34a' : '#6b7280');
 }
 
-function saveRsvps(entries){
-  localStorage.setItem(GUESTS_STORAGE_KEY, JSON.stringify(entries));
+function validateEmail(email){
+  if (!email) return true;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function formatISODate(d){
@@ -109,162 +132,129 @@ function formatISODate(d){
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function buildDownloadPayload(rsvp){
-  return JSON.stringify({
-    submittedAt: rsvp.submittedAt,
-    guestName: rsvp.guestName,
-    guestEmail: rsvp.guestEmail || null,
-    attendance: rsvp.attendance,
-    notes: rsvp.notes || null
-  }, null, 2);
+function loadRsvps(){
+  const key = 'wedding_rsvps_v1';
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : [];
+  }catch{
+    return [];
+  }
 }
 
-function downloadText(filename, text){
-  const blob = new Blob([text], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+function saveRsvps(entries){
+  const key = 'wedding_rsvps_v1';
+  localStorage.setItem(key, JSON.stringify(entries));
 }
 
-function showStatus(msg, kind = 'info'){
-  const elStatus = document.getElementById('formStatus');
-  if (!elStatus) return;
-  elStatus.textContent = msg;
-  elStatus.style.color = kind === 'error' ? '#dc2626' : (kind === 'success' ? '#16a34a' : '#6b7280');
-}
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('year') && (document.getElementById('year').textContent = String(new Date().getFullYear()));
 
-function initFullpage(){
-  if (!window.$ || !window.fullpage){
-    console.warn('fullPage dependencies not loaded yet');
-    return null;
+  setBackgrounds();
+  renderVenues();
+
+  // Initialize fullpage after deps are ready
+  if (!window.fullpage_api){
+    // no-op
   }
 
-  window.$('#fullpage').fullpage({
-    anchors: ['intro', 'cover', 'venues', 'rsvp', 'faq'],
-    navigation: false,
-    navigationTooltips: false,
-    showActiveTooltip: false,
+  // fullpage_api set via callback below
+  fp = window.fullpage_api;
+});
 
-    // presentation feel
+// fullpage initialization is global because fullpage.js registers jQuery plugin
+$(document).ready(function(){
+  // lock scrolling until envelope opened
+  fp = $('#fullpage').fullpage({
     autoScrolling: true,
     fitToSection: true,
     scrollHorizontally: false,
-
-    // allow inner scrolling for forms/details
     scrollOverflow: true,
-
-    // ensure touch friendliness
+    keyboardScrolling: true,
     touchSensitivity: 10,
 
-    afterLoad: function(){
-      // Until the envelope is opened, keep the user from moving away from the intro slide.
-      if (!document.body.classList.contains('opened')){
+    navigation: false,
+    anchors: ['intro','cover','venues','rsvp','faq'],
+
+    // start locked
+    onLeave: function(){
+      // prevent navigation while locked
+      if (!document.body.classList.contains('fp-opened')){
+        window.fullpage_api?.setAllowScrolling(false);
+      }
+    },
+
+    afterLoad: function(origin, destination, direction){
+      // If not opened yet, lock.
+      if (!document.body.classList.contains('fp-opened')){
         window.fullpage_api?.setAllowScrolling(false);
         window.fullpage_api?.setKeyboardScrolling(false);
       }
     }
-  });
+  }).data('fullpage');
 
-  // Lock immediately (best-effort; fullpage_api should exist after init)
+  // ensure initial lock
   window.fullpage_api?.setAllowScrolling(false);
   window.fullpage_api?.setKeyboardScrolling(false);
 
-  return window.fullpage_api;
-}
-
-let lastSubmitted = null;
-
-document.addEventListener('DOMContentLoaded', () => {
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
-
-  renderVenues();
-
-  const fp = initFullpage();
-
-  // Envelope open interaction
-  const btn = document.getElementById('openEnvelopeBtn');
+  const openBtn = document.getElementById('openBtn');
+  const exploreBtn = document.getElementById('exploreBtn');
+  const rsvpBtn = document.getElementById('rsvpBtn');
+  const faqBtn = document.getElementById('faqBtn');
   const open = () => {
-    if (document.body.classList.contains('opened')) return;
-    document.body.classList.add('opened');
+    document.body.classList.add('fp-opened');
+    window.fullpage_api?.setAllowScrolling(true);
+    window.fullpage_api?.setKeyboardScrolling(true);
 
-    fp?.setAllowScrolling(true);
-    fp?.setKeyboardScrolling(true);
-
-    // Move to cover (section 2)
-    fp?.moveSectionDown();
+    // move from intro (1) -> cover (2)
+    window.fullpage_api?.moveTo(2);
   };
 
-  btn?.addEventListener('click', open);
-  btn?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') open();
-  });
+  openBtn?.addEventListener('click', open);
 
-  // RSVP
+  exploreBtn?.addEventListener('click', () => window.fullpage_api?.moveTo(3));
+  rsvpBtn?.addEventListener('click', () => window.fullpage_api?.moveTo(4));
+  faqBtn?.addEventListener('click', () => window.fullpage_api?.moveTo(5));
+
   const form = document.getElementById('rsvpForm');
-  const downloadBtn = document.getElementById('downloadBtn');
-  const notes = document.getElementById('notes');
-  const email = document.getElementById('guestEmail');
-  const name = document.getElementById('guestName');
+  if (form){
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
 
-  form?.addEventListener('submit', (e) => {
-    e.preventDefault();
+      const guestName = document.getElementById('guestName').value.trim();
+      const guestEmail = document.getElementById('guestEmail').value.trim();
+      const attendance = form.querySelector('input[name="attendance"]:checked')?.value;
+      const guestNotes = document.getElementById('notes').value.trim();
 
-    const attendance = form.querySelector('input[name="attendance"]:checked')?.value;
-    const guestName = name?.value?.trim();
-    const guestEmail = email?.value?.trim();
-    const guestNotes = notes?.value?.trim();
-
-    if (!guestName){
-      showStatus('Please enter your name.', 'error');
-      name?.focus();
-      return;
-    }
-    if (!attendance){
-      showStatus('Please select your attendance.', 'error');
-      return;
-    }
-
-    if (guestEmail){
-      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail);
-      if (!ok){
-        showStatus('That email doesn’t look right — or leave it blank.', 'error');
-        email?.focus();
+      if (!guestName){
+        showStatus('Please enter your name.', 'error');
+        document.getElementById('guestName').focus();
         return;
       }
-    }
+      if (!attendance){
+        showStatus('Please select your attendance.', 'error');
+        return;
+      }
+      if (!validateEmail(guestEmail)){
+        showStatus('That email doesn’t look right — or leave it blank.', 'error');
+        document.getElementById('guestEmail').focus();
+        return;
+      }
 
-    const rsvp = {
-      submittedAt: formatISODate(new Date()),
-      guestName,
-      guestEmail,
-      attendance,
-      notes: guestNotes
-    };
+      const rsvp = {
+        submittedAt: formatISODate(new Date()),
+        guestName,
+        guestEmail: guestEmail || null,
+        attendance,
+        notes: guestNotes || null
+      };
 
-    const entries = loadRsvps();
-    entries.unshift(rsvp);
-    saveRsvps(entries.slice(0, 50));
-    lastSubmitted = rsvp;
+      const entries = loadRsvps();
+      entries.unshift(rsvp);
+      saveRsvps(entries.slice(0, 50));
+      lastSubmitted = rsvp;
 
-    showStatus('Thanks! Your RSVP has been saved on this device.', 'success');
-  });
-
-  downloadBtn?.addEventListener('click', () => {
-    if (!lastSubmitted){
-      showStatus('Submit your RSVP first, then download it.', 'error');
-      return;
-    }
-    const payload = buildDownloadPayload(lastSubmitted);
-    downloadText(
-      `rsvp-${lastSubmitted.guestName.replace(/\s+/g,'-').toLowerCase()}-${lastSubmitted.attendance}.json`,
-      payload
-    );
-    showStatus('Downloaded your RSVP file.', 'success');
-  });
+      showStatus('Thanks! RSVP saved on this device (demo). Next we’ll wire real submissions.', 'success');
+    });
+  }
 });

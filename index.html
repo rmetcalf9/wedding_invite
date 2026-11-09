@@ -3,182 +3,159 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Robert & Elizabeth — Wedding Invite</title>
-  <meta name="description" content="Wedding invitation with RSVP" />
+  <title>Robert &amp; Elizabeth — Wedding</title>
+  <meta name="description" content="Wedding invitation + RSVP" />
 
-  <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullpage.js@5.0.9/dist/fullpage.min.css" />
-  <meta name="theme-color" content="#b7791f" />
+  <link rel="stylesheet" href="./styles.css" />
+  <meta name="theme-color" content="#111827" />
 </head>
 <body>
-  <a class="skip-link" href="#slide-cover">Skip to invitation</a>
-
-  <!-- fullPage.js root -->
+  <!-- Native fullpage scroll container -->
   <div id="fullpage">
-    <!-- Intro / envelope -->
-    <section class="section section--intro" id="slide-intro" aria-label="Intro envelope">
-      <div class="intro">
-        <div class="intro__frame" aria-hidden="true">
-          <div class="envelope" role="img" aria-label="Invitation envelope">
-            <div class="envelope__back" aria-hidden="true"></div>
-            <div class="envelope__front" aria-hidden="true"></div>
-            <div class="envelope__flap" aria-hidden="true"></div>
-            <div class="envelope__seal" aria-hidden="true">&hearts;</div>
+    <!-- 1) Envelope intro -->
+    <section class="fp-section" data-anchor="intro">
+      <div class="slide">
+        <div class="bg" aria-hidden="true"></div>
+        <div class="content">
+          <div class="brand">Robert &amp; Elizabeth</div>
+          <div class="envelope" role="img" aria-label="Wedding invitation envelope">
+            <div class="envelope__back"></div>
+            <div class="envelope__front"></div>
+            <div class="envelope__flap" id="envelopeFlap"></div>
+            <div class="envelope__seal" aria-hidden="true">♥</div>
+          </div>
+
+          <button class="primary" id="openBtn" type="button">
+            Tap to open your invitation
+          </button>
+          <p class="hint">We can’t wait to share our day with you.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2) Cover -->
+    <section class="fp-section" data-anchor="cover">
+      <div class="slide">
+        <div class="bg" aria-hidden="true"></div>
+        <div class="content content--center">
+          <div class="title">Robert &amp; Elizabeth</div>
+          <div class="subtitle">are getting married</div>
+          <div class="date">Saturday 17 July 2027</div>
+
+          <div class="actions">
+            <button class="primary" id="exploreBtn" type="button">Explore venues</button>
+            <button class="ghost" id="rsvpBtn" type="button">RSVP</button>
+          </div>
+
+          <div class="scrollLine">SCROLL DOWN TO EXPLORE - RSVP BELOW</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3) Venues -->
+    <section class="fp-section" data-anchor="venues">
+      <div class="slide">
+        <div class="bg" aria-hidden="true"></div>
+        <div class="content content--left">
+          <div class="sectionTitle">Venues &amp; maps</div>
+          <p class="lead">Tap “Open map” to navigate. (Update addresses + maps URLs in <code>app.js</code>.)</p>
+
+          <div id="venuesGrid" class="venuesGrid" aria-label="Venue list"></div>
+
+          <div class="bottomNav">
+            <button class="ghost" id="backToCoverBtn" type="button">Back</button>
           </div>
         </div>
-
-        <button class="intro__btn" id="openEnvelopeBtn" type="button">
-          Tap to open your invitation
-        </button>
-
-        <p class="intro__sub">We can’t wait to share our day with you.</p>
       </div>
     </section>
 
-    <!-- Cover -->
-    <section class="section section--cover" id="slide-cover" aria-label="Wedding cover">
-      <div class="cover">
-        <div class="cover__inner">
-          <div class="cover__line1">Robert &amp; Elizabeth</div>
-          <div class="cover__line2">are getting married</div>
-          <div class="cover__date">Saturday 17 July 2027</div>
+    <!-- 4) RSVP -->
+    <section class="fp-section" data-anchor="rsvp">
+      <div class="slide">
+        <div class="bg" aria-hidden="true"></div>
+        <div class="content content--left">
+          <div class="sectionTitle">RSVP</div>
+          <p class="lead">Choose your answer below.</p>
 
-          <div class="cover__scrollHint" aria-label="Scroll hint">
-            SCROLL DOWN TO EXPLORE &nbsp;-&nbsp; RSVP BELOW
+          <div class="card">
+            <form id="rsvpForm" novalidate>
+              <label class="field">
+                <span>Your name</span>
+                <input id="guestName" name="guestName" type="text" autocomplete="name" required placeholder="e.g. Robert" />
+              </label>
+
+              <label class="field">
+                <span>Email (optional)</span>
+                <input id="guestEmail" name="guestEmail" type="email" autocomplete="email" placeholder="e.g. name@email.com" />
+              </label>
+
+              <fieldset class="field">
+                <legend>Are you coming?</legend>
+                <label class="radio"><input type="radio" name="attendance" value="yes" required /> <span>Yes, I’m coming</span></label>
+                <label class="radio"><input type="radio" name="attendance" value="no" required /> <span>Sorry, I can’t make it</span></label>
+                <label class="radio"><input type="radio" name="attendance" value="maybe" required /> <span>Maybe</span></label>
+              </fieldset>
+
+              <label class="field">
+                <span>Notes (dietary requirements, +1, questions)</span>
+                <textarea id="notes" name="notes" rows="4" placeholder="Optional"></textarea>
+              </label>
+
+              <div class="formActions">
+                <button class="primary" type="submit">Submit RSVP</button>
+              </div>
+
+              <div class="status" id="formStatus" role="status" aria-live="polite"></div>
+            </form>
+          </div>
+
+          <div class="bottomNav">
+            <button class="ghost" id="faqBtn" type="button">More info</button>
           </div>
         </div>
-
-        <div class="cover__cta" aria-label="Quick links">
-          <a class="linkBtn" href="#venues">Explore venues</a>
-          <a class="linkBtn linkBtn--ghost" href="#rsvp">Go to RSVP</a>
-        </div>
       </div>
     </section>
 
-    <!-- Venues -->
-    <section class="section" id="slide-venues" aria-label="Venues">
-      <div class="slide__content container">
-        <div class="slide__head">
-          <h2>Venues &amp; maps</h2>
-          <p class="muted">Tap “Open map” to navigate. Add coordinates (optional) to show embedded maps.</p>
-        </div>
+    <!-- 5) FAQ -->
+    <section class="fp-section" data-anchor="faq">
+      <div class="slide">
+        <div class="bg" aria-hidden="true"></div>
+        <div class="content content--left">
+          <div class="sectionTitle">Info &amp; FAQs</div>
 
-        <div id="venuesGrid" class="venuesGrid" role="list" aria-label="Venue list">
-          <!-- JS renders venue cards -->
-        </div>
+          <div class="faqGrid">
+            <details class="faq">
+              <summary>Where should guests park?</summary>
+              <div class="faq__body">[Parking details]</div>
+            </details>
+            <details class="faq">
+              <summary>Is there wheelchair access?</summary>
+              <div class="faq__body">[Access details]</div>
+            </details>
+            <details class="faq">
+              <summary>Can I bring a plus-one?</summary>
+              <div class="faq__body">[Plus-one policy]</div>
+            </details>
+            <details class="faq">
+              <summary>What should I wear?</summary>
+              <div class="faq__body">[Dress code]</div>
+            </details>
+          </div>
 
-        <div class="noteCard" role="note">
-          <strong>Tip:</strong> Update venue addresses (and optional coordinates) in <code>app.js</code>.
-        </div>
-      </div>
-    </section>
-
-    <!-- RSVP -->
-    <section class="section" id="slide-rsvp" aria-label="RSVP">
-      <div class="slide__content container">
-        <div class="slide__head">
-          <h2>RSVP</h2>
-          <p class="muted">Choose your answer below. (This demo stores RSVPs on the device.)</p>
-        </div>
-
-        <div class="rsvpGrid">
-          <form id="rsvpForm" class="formCard" novalidate>
-            <div class="formRow">
-              <label for="guestName">Your name</label>
-              <input id="guestName" name="guestName" type="text" autocomplete="name" required placeholder="e.g. Robert" />
-              <div class="fieldHint">We’ll use this for your RSVP entry.</div>
-            </div>
-
-            <div class="formRow">
-              <label for="guestEmail">Email (optional)</label>
-              <input id="guestEmail" name="guestEmail" type="email" autocomplete="email" placeholder="e.g. name@email.com" />
-            </div>
-
-            <fieldset class="formRow" aria-label="Attendance">
-              <legend>Are you coming?</legend>
-              <label class="radio">
-                <input type="radio" name="attendance" value="yes" required />
-                <span>Yes, I’m coming</span>
-              </label>
-              <label class="radio">
-                <input type="radio" name="attendance" value="no" required />
-                <span>Sorry, I can’t make it</span>
-              </label>
-              <label class="radio">
-                <input type="radio" name="attendance" value="maybe" required />
-                <span>Maybe</span>
-              </label>
-            </fieldset>
-
-            <div class="formRow">
-              <label for="notes">Notes (dietary requirements, +1, questions)</label>
-              <textarea id="notes" name="notes" rows="4" placeholder="Optional"></textarea>
-            </div>
-
-            <div class="formRow formRow--actions">
-              <button class="btn btn--primary" type="submit">Submit RSVP</button>
-              <button class="btn btn--ghost" type="button" id="downloadBtn">Download my RSVP</button>
-            </div>
-
-            <div class="formStatus" id="formStatus" role="status" aria-live="polite"></div>
-          </form>
-
-          <aside class="summaryCard" aria-label="RSVP summary">
-            <h3 class="summaryCard__title">What happens next</h3>
-            <ol class="steps">
-              <li>Fill out the form.</li>
-              <li>We’ll confirm on your screen.</li>
-              <li>Next step: connect a submission method so responses reach you automatically.</li>
-            </ol>
-            <div class="divider"></div>
-            <p class="muted">RSVP deadline: <strong>[Deadline date]</strong></p>
-            <p class="muted">Contact: <strong>[Your contact email/phone]</strong></p>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section" id="slide-faq" aria-label="Info and FAQs">
-      <div class="slide__content container">
-        <div class="slide__head">
-          <h2>Info &amp; FAQs</h2>
-          <p class="muted">Edit these sections to match your wedding details.</p>
-        </div>
-
-        <div class="faqGrid">
-          <details class="faq">
-            <summary>Where should guests park?</summary>
-            <div class="faq__body">[Parking details]</div>
-          </details>
-          <details class="faq">
-            <summary>Is there wheelchair access?</summary>
-            <div class="faq__body">[Access details]</div>
-          </details>
-          <details class="faq">
-            <summary>Can I bring a plus-one?</summary>
-            <div class="faq__body">[Plus-one policy]</div>
-          </details>
-          <details class="faq">
-            <summary>What should I wear?</summary>
-            <div class="faq__body">[Dress code]</div>
-          </details>
-        </div>
-
-        <footer class="footer" aria-label="Footer">
-          <div class="footer__inner">
-            <div class="muted">© <span id="year"></span> Robert &amp; Elizabeth</div>
+          <footer class="footer">
+            <div>© <span id="year"></span> Robert &amp; Elizabeth</div>
             <div class="muted">Hosted on GitHub Pages</div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
     </section>
   </div>
 
-  <!-- Dependencies for fullPage.js (jQuery-based) -->
+  <!-- Dependencies (fullpage.js v5 uses jQuery) -->
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/fullpage.js@5.0.9/dist/fullpage.min.js"></script>
 
-  <script src="./app.js" type="module"></script>
+  <script src="./app.js" defer></script>
 </body>
 </html>
