@@ -134,7 +134,26 @@ fieldset { margin: 10px 0 0; padding: 0; border: 0; }
   .event-card-featured { background: transparent; }
   .photo-break { min-height: 420px; }
   .rsvp { padding-top: 85px; padding-bottom: 90px; }
+
+  /* Make small wedding typography readable on mobile */
+  body { font-size: 18px; line-height: 1.7; }
+
+  .eyebrow { font-size: 18px; letter-spacing: .20em; }
+  .hero-subtitle { font-size: 20px; }
+  .hero-date { font-size: 20px; }
+  .text-link { font-size: 18px; }
+
+  /* Footer */
+  .site-footer p, .back-top { font-size: 16px; }
+  .site-footer small { font-size: 16px; }
+
+  /* Form label sizing */
+  form > label, fieldset legend { font-size: 20px; }
+
+  /* Choice labels in RSVP */
+  .choice { font-size: 16px; }
 }
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
