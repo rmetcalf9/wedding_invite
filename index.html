@@ -3,184 +3,175 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wedding Invite</title>
-  <meta name="description" content="Wedding invitation + RSVP" />
+  <title>Robert & Elizabeth — Wedding Invite</title>
+  <meta name="description" content="Wedding invitation with RSVP" />
   <link rel="stylesheet" href="./styles.css" />
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#b7791f" />
 </head>
-<body>
-  <a class="skip-link" href="#content">Skip to content</a>
+<body class="locked" data-noscript="">
+  <a class="skip-link" href="#slides">Skip to invitation</a>
 
-  <header class="topbar" role="banner">
-    <div class="container topbar__inner">
-      <div class="brand" aria-label="Wedding invitation">
-        <span class="brand__mark" aria-hidden="true">✦</span>
-        <span class="brand__text">Wedding</span>
-      </div>
-
-      <nav class="nav" aria-label="Page">
-        <a class="nav__link" href="#rsvp">RSVP</a>
-        <a class="nav__link" href="#venues">Venues</a>
-        <a class="nav__link" href="#faq">Info</a>
-      </nav>
-    </div>
-  </header>
-
-  <main id="content" class="container">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero__grid">
-        <div class="hero__copy">
-          <h1 id="hero-title" class="hero__title">Robert &amp; [Partner Name]</h1>
-          <p class="hero__subtitle">[Date] • [City]</p>
-          <p class="hero__note">
-            We can’t wait to celebrate with you. RSVP below to let us know you’re coming.
-          </p>
-
-          <div class="hero__cta">
-            <a class="btn btn--primary" href="#rsvp">RSVP now</a>
-            <a class="btn btn--ghost" href="#venues">View venues</a>
-          </div>
-
-          <div class="hero__badges" aria-label="Highlights">
-            <div class="badge">Mobile-friendly</div>
-            <div class="badge">Venues + maps</div>
-            <div class="badge">RSVP form</div>
+  <div class="slides" id="slides" aria-label="Wedding invitation slideshow">
+    <!-- Intro / envelope -->
+    <section class="slide slide--intro" id="slide-intro" aria-label="Intro envelope">
+      <div class="intro">
+        <div class="intro__frame" aria-hidden="true">
+          <div class="envelope" role="img" aria-label="Invitation envelope">
+            <div class="envelope__back" aria-hidden="true"></div>
+            <div class="envelope__front" aria-hidden="true"></div>
+            <div class="envelope__flap" aria-hidden="true"></div>
+            <div class="envelope__seal" aria-hidden="true">&hearts;</div>
           </div>
         </div>
 
-        <div class="hero__card" aria-label="Event details">
-          <div class="hero__cardTop">
-            <div class="kicker">On the day</div>
-            <div class="eventRow">
-              <div class="eventRow__label">Ceremony</div>
-              <div class="eventRow__value">[Time]</div>
-            </div>
-            <div class="eventRow">
-              <div class="eventRow__label">Reception</div>
-              <div class="eventRow__value">[Time]</div>
-            </div>
-          </div>
+        <button class="intro__btn" id="openEnvelopeBtn" type="button">
+          Tap to open your invitation
+        </button>
 
-          <div class="hero__cardBottom">
-            <div class="kicker">Dress code</div>
-            <div class="eventRow__value">[e.g. Formal / Smart casual]</div>
-            <p class="muted">Feel free to update these placeholders with your actual details.</p>
-          </div>
+        <p class="intro__sub">We can’t wait to share our day with you.</p>
+      </div>
+    </section>
+
+    <!-- Cover -->
+    <section class="slide slide--cover" id="slide-cover" aria-label="Wedding cover">
+      <header class="cover">
+        <div class="cover__inner">
+          <div class="cover__line1">Robert &amp; Elizabeth</div>
+          <div class="cover__line2">are getting married</div>
+          <div class="cover__date">Saturday 17 July 2027</div>
+        </div>
+
+        <div class="cover__scrollHint" aria-label="Scroll hint">
+          SCROLL DOWN TO EXPLORE &nbsp;-&nbsp; RSVP BELOW
+        </div>
+      </header>
+
+      <div class="cover__cta">
+        <a class="linkBtn" href="#slide-venues">Explore venues</a>
+        <a class="linkBtn linkBtn--ghost" href="#slide-rsvp">Go to RSVP</a>
+      </div>
+    </section>
+
+    <!-- Venues -->
+    <section class="slide slide--venues" id="slide-venues" aria-labelledby="venues-title">
+      <div class="slide__content container">
+        <div class="slide__head">
+          <h2 id="venues-title">Venues &amp; maps</h2>
+          <p class="muted">Tap “Open map” to navigate. If you add coordinates, an embedded map appears too.</p>
+        </div>
+
+        <div id="venuesGrid" class="venuesGrid" role="list" aria-label="Venue list">
+          <!-- JS renders venue cards -->
+        </div>
+
+        <div class="noteCard" role="note">
+          <strong>Tip:</strong> For best results, fill in venue addresses and (optionally) coordinates in <code>app.js</code>.
         </div>
       </div>
     </section>
 
-    <section class="section" id="venues" aria-labelledby="venues-title">
-      <div class="section__head">
-        <h2 id="venues-title">Venues &amp; maps</h2>
-        <p class="muted">Tap “Open map” to navigate. If you add coordinates, you’ll also see an embedded map.</p>
-      </div>
+    <!-- RSVP -->
+    <section class="slide slide--rsvp" id="slide-rsvp" aria-labelledby="rsvp-title">
+      <div class="slide__content container">
+        <div class="slide__head">
+          <h2 id="rsvp-title">RSVP</h2>
+          <p class="muted">Choose your answer below. (This demo stores RSVPs on the device; we can wire submissions to a form service next.)</p>
+        </div>
 
-      <div id="venuesGrid" class="venuesGrid" role="list">
-        <!-- JS renders venue cards -->
-      </div>
+        <div class="rsvpGrid">
+          <form id="rsvpForm" class="formCard" novalidate>
+            <div class="formRow">
+              <label for="guestName">Your name</label>
+              <input id="guestName" name="guestName" type="text" autocomplete="name" required placeholder="e.g. Robert" />
+              <div class="fieldHint">We’ll use this for your RSVP entry.</div>
+            </div>
 
-      <div class="noteCard" role="note">
-        <strong>Quick tip:</strong> If you want RSVP submissions to go to your inbox, tell me whether you prefer Formspree, Google Forms, or a simple email link.
-      </div>
-    </section>
+            <div class="formRow">
+              <label for="guestEmail">Email (optional)</label>
+              <input id="guestEmail" name="guestEmail" type="email" autocomplete="email" placeholder="e.g. name@email.com" />
+            </div>
 
-    <section class="section" id="rsvp" aria-labelledby="rsvp-title">
-      <div class="section__head">
-        <h2 id="rsvp-title">RSVP</h2>
-        <p class="muted">Choose your answer. This demo saves on the guest’s device; we’ll connect a real submission method next.</p>
-      </div>
+            <fieldset class="formRow" aria-label="Attendance">
+              <legend>Are you coming?</legend>
+              <label class="radio">
+                <input type="radio" name="attendance" value="yes" required />
+                <span>Yes, I’m coming</span>
+              </label>
+              <label class="radio">
+                <input type="radio" name="attendance" value="no" required />
+                <span>Sorry, I can’t make it</span>
+              </label>
+              <label class="radio">
+                <input type="radio" name="attendance" value="maybe" required />
+                <span>Maybe</span>
+              </label>
+            </fieldset>
 
-      <div class="rsvpGrid">
-        <form id="rsvpForm" class="formCard" novalidate>
-          <div class="formRow">
-            <label for="guestName">Your name</label>
-            <input id="guestName" name="guestName" type="text" autocomplete="name" required placeholder="e.g. Robert" />
-            <div class="fieldHint">We’ll use this for your RSVP entry.</div>
-          </div>
+            <div class="formRow">
+              <label for="notes">Notes (dietary requirements, +1, questions)</label>
+              <textarea id="notes" name="notes" rows="4" placeholder="Optional"></textarea>
+            </div>
 
-          <div class="formRow">
-            <label for="guestEmail">Email (optional)</label>
-            <input id="guestEmail" name="guestEmail" type="email" autocomplete="email" placeholder="e.g. name@email.com" />
-          </div>
+            <div class="formRow formRow--actions">
+              <button class="btn btn--primary" type="submit">Submit RSVP</button>
+              <button class="btn btn--ghost" type="button" id="downloadBtn">Download my RSVP</button>
+            </div>
 
-          <fieldset class="formRow" aria-label="Attendance">
-            <legend>Are you coming?</legend>
-            <label class="radio">
-              <input type="radio" name="attendance" value="yes" required />
-              <span>Yes, I’m coming</span>
-            </label>
-            <label class="radio">
-              <input type="radio" name="attendance" value="no" required />
-              <span>Sorry, I can’t make it</span>
-            </label>
-            <label class="radio">
-              <input type="radio" name="attendance" value="maybe" required />
-              <span>Maybe</span>
-            </label>
-          </fieldset>
+            <div class="formStatus" id="formStatus" role="status" aria-live="polite"></div>
+          </form>
 
-          <div class="formRow">
-            <label for="notes">Notes (dietary requirements, +1, questions)</label>
-            <textarea id="notes" name="notes" rows="4" placeholder="Optional"></textarea>
-          </div>
-
-          <div class="formRow formRow--actions">
-            <button class="btn btn--primary" type="submit">Submit RSVP</button>
-            <button class="btn btn--ghost" type="button" id="downloadBtn">Download my RSVP</button>
-          </div>
-
-          <div class="formStatus" id="formStatus" role="status" aria-live="polite"></div>
-        </form>
-
-        <aside class="summaryCard" aria-label="RSVP summary">
-          <h3 class="summaryCard__title">What happens next</h3>
-          <ol class="steps">
-            <li>Fill out the form.</li>
-            <li>We’ll confirm on your screen.</li>
-            <li>Next step: connect it so submissions reach you automatically.</li>
-          </ol>
-          <div class="divider"></div>
-          <p class="muted">RSVP deadline: <strong>[Deadline date]</strong></p>
-          <p class="muted">Contact: <strong>[Your contact email/phone]</strong></p>
-          <p class="muted">You can change this copy in <code>app.js</code>.</p>
-        </aside>
+          <aside class="summaryCard" aria-label="RSVP summary">
+            <h3 class="summaryCard__title">What happens next</h3>
+            <ol class="steps">
+              <li>Fill out the form.</li>
+              <li>We’ll confirm on your screen.</li>
+              <li>Next step: connect a submission method so responses reach you automatically.</li>
+            </ol>
+            <div class="divider"></div>
+            <p class="muted">RSVP deadline: <strong>[Deadline date]</strong></p>
+            <p class="muted">Contact: <strong>[Your contact email/phone]</strong></p>
+            <p class="muted">You can change this copy in <code>index.html</code>.</p>
+          </aside>
+        </div>
       </div>
     </section>
 
-    <section class="section" id="faq" aria-labelledby="faq-title">
-      <div class="section__head">
-        <h2 id="faq-title">Info &amp; FAQs</h2>
-        <p class="muted">Edit these sections to match your wedding details.</p>
-      </div>
+    <!-- FAQ -->
+    <section class="slide slide--faq" id="slide-faq" aria-labelledby="faq-title">
+      <div class="slide__content container">
+        <div class="slide__head">
+          <h2 id="faq-title">Info &amp; FAQs</h2>
+          <p class="muted">Edit these sections to match your wedding details.</p>
+        </div>
 
-      <div class="faqGrid">
-        <details class="faq">
-          <summary>Where should guests park?</summary>
-          <div class="faq__body">[Parking details]</div>
-        </details>
-        <details class="faq">
-          <summary>Is there wheelchair access?</summary>
-          <div class="faq__body">[Access details]</div>
-        </details>
-        <details class="faq">
-          <summary>Can I bring a plus-one?</summary>
-          <div class="faq__body">[Plus-one policy]</div>
-        </details>
-        <details class="faq">
-          <summary>What should I wear?</summary>
-          <div class="faq__body">[Dress code]</div>
-        </details>
+        <div class="faqGrid">
+          <details class="faq">
+            <summary>Where should guests park?</summary>
+            <div class="faq__body">[Parking details]</div>
+          </details>
+          <details class="faq">
+            <summary>Is there wheelchair access?</summary>
+            <div class="faq__body">[Access details]</div>
+          </details>
+          <details class="faq">
+            <summary>Can I bring a plus-one?</summary>
+            <div class="faq__body">[Plus-one policy]</div>
+          </details>
+          <details class="faq">
+            <summary>What should I wear?</summary>
+            <div class="faq__body">[Dress code]</div>
+          </details>
+        </div>
+
+        <footer class="footer" aria-label="Footer">
+          <div class="footer__inner">
+            <div class="muted">© <span id="year"></span> Robert &amp; Elizabeth</div>
+            <div class="muted">Built for mobile + desktop • Hosted on GitHub Pages</div>
+          </div>
+        </footer>
       </div>
     </section>
-
-    <footer class="footer" aria-label="Footer">
-      <div class="footer__inner">
-        <div class="muted">© <span id="year"></span> Robert &amp; [Partner Name]</div>
-        <div class="muted">Built for mobile + desktop • Hosted on GitHub Pages</div>
-      </div>
-    </footer>
-  </main>
+  </div>
 
   <script src="./app.js" type="module"></script>
 </body>

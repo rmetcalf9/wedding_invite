@@ -2,8 +2,8 @@ const GUESTS_STORAGE_KEY = 'wedding_rsvps_v1';
 
 const state = {
   event: {
-    coupleLine: 'Robert & [Partner Name]',
-    dateLine: '[Date] • [City]',
+    coupleLine: 'Robert & Elizabeth',
+    dateLine: 'Saturday 17 July 2027',
     rsvpDeadline: '[Deadline date]',
     contactLine: '[Your contact email/phone]'
   },
@@ -15,7 +15,6 @@ const state = {
       address: '[Full address]',
       description: 'Add a short description (arrival time, doors open, ceremony start).',
       mapsUrl: 'https://www.google.com/maps?q=51.5074,-0.1278',
-      // Optional: embedded map coordinates
       coords: null // { lat: 51.5074, lng: -0.1278 }
     },
     {
@@ -50,8 +49,7 @@ function openMapLabelForVenue(venue){
   return venue.mapsUrl ? 'Open map' : 'Maps unavailable';
 }
 
-function osmEmbedUrl({lat,lng,zoom=15}){
-  // Simple OSM embed; no API key needed.
+function osmEmbedUrl({lat,lng}){
   return `https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.01}%2C${lat-0.01}%2C${lng+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lng}`;
 }
 
@@ -137,18 +135,33 @@ function showStatus(msg, kind = 'info'){
   const elStatus = document.getElementById('formStatus');
   if (!elStatus) return;
   elStatus.textContent = msg;
-  elStatus.style.color = kind === 'error' ? '#f87171' : (kind === 'success' ? '#34d399' : '#e5e7eb');
+  elStatus.style.color = kind === 'error' ? '#dc2626' : (kind === 'success' ? '#16a34a' : '#6b7280');
 }
 
 let lastSubmitted = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Footer year
-  const yearEl = document.getElementById('year');
-  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
+  // Envelope open interaction
+  const btn = document.getElementById('openEnvelopeBtn');
+  const cover = document.getElementById('slide-cover');
 
+  const open = () => {
+    if (document.body.classList.contains('opened')) return;
+    document.body.classList.add('opened');
+    document.body.classList.remove('locked');
+
+    if (cover) cover.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  btn?.addEventListener('click', open);
+  btn?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') open();
+  });
+
+  // Venues
   renderVenues();
 
+  // RSVP
   const form = document.getElementById('rsvpForm');
   const downloadBtn = document.getElementById('downloadBtn');
   const notes = document.getElementById('notes');
@@ -210,4 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
     );
     showStatus('Downloaded your RSVP file.', 'success');
   });
+
+  // Footer year
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 });
