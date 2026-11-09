@@ -52,6 +52,7 @@ h2 { font-size: clamp(43px, 6vw, 72px); line-height: 1.12; letter-spacing: -.035
 .intro-copy { max-width: 510px; margin: 0 auto; color: var(--muted); }
 .date-stamp { width: 112px; height: 112px; margin: 45px auto 0; border: 1px solid #b9b8a9; border-radius: 50%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--sage-dark); font-size: 10px; letter-spacing: .16em; line-height: 1.6; }
 .date-stamp span:first-child { font: 44px var(--serif); letter-spacing: 0; }
+.date-stamp span:nth-child(2), .date-stamp span:nth-child(3) { font: 26px var(--serif); letter-spacing: 0; }
 
 .countdown{ margin: 26px auto 0; display:flex; justify-content:center; gap: 14px; flex-wrap: wrap; }
 .countdown-unit{ text-align:center; min-width: 82px; }
