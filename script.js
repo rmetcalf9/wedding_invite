@@ -4,6 +4,10 @@ const ceemony_date = {
   day: '17',
   month: 'July',
   year: '2027',
+  // Also used for the compact circle stamp (MM DD YY)
+  monthTwoDigit: '07',
+  yearTwoDigit: '27',
+
   // Requested: 3pm (display as 3:00 PM)
   timeDisplay: '3:00 PM'
 };
@@ -18,10 +22,10 @@ function renderCeremonyDate(){
   if (stampDay) stampDay.textContent = ceemony_date.day;
 
   const stampMonth = document.querySelector('[data-ceremony="stamp-month"]');
-  if (stampMonth) stampMonth.textContent = ceemony_date.month.toUpperCase();
+  if (stampMonth) stampMonth.textContent = ceemony_date.monthTwoDigit;
 
   const stampYear = document.querySelector('[data-ceremony="stamp-year"]');
-  if (stampYear) stampYear.textContent = ceemony_date.year;
+  if (stampYear) stampYear.textContent = ceemony_date.yearTwoDigit;
 
   const ceremonyTimeEl = document.querySelector('[data-ceremony="ceremony-time"]');
   if (ceremonyTimeEl) ceremonyTimeEl.textContent = ceemony_date.timeDisplay;
