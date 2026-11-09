@@ -32,6 +32,79 @@ function renderCeremonyDate(){
 
 renderCeremonyDate();
 
+function monthNameToIndex(monthName){
+  const map = {
+    January: 0,
+    February: 1,
+    March: 2,
+    April: 3,
+    May: 4,
+    June: 5,
+    July: 6,
+    August: 7,
+    September: 8,
+    October: 9,
+    November: 10,
+    December: 11
+  };
+  return map[monthName];
+}
+
+function ceremonyTargetDate(){
+  // ceemony_date.timeDisplay is currently always 3:00 PM; we compute using fixed 24h time
+  const monthIndex = monthNameToIndex(ceemony_date.month);
+  return new Date(
+    Number(ceemony_date.year),
+    monthIndex,
+    Number(ceemony_date.day),
+    15, // 3pm
+    0,
+    0,
+    0
+  );
+}
+
+function startCountdown(){
+  const daysEl = document.getElementById('cd-days');
+  const hoursEl = document.getElementById('cd-hours');
+  const minutesEl = document.getElementById('cd-minutes');
+  const secondsEl = document.getElementById('cd-seconds');
+  if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+
+  const target = ceremonyTargetDate();
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  function tick(){
+    const now = new Date();
+    const diffMs = target - now;
+
+    if (diffMs <= 0){
+      daysEl.textContent = '0';
+      hoursEl.textContent = '00';
+      minutesEl.textContent = '00';
+      secondsEl.textContent = '00';
+      return;
+    }
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    daysEl.textContent = String(days);
+    hoursEl.textContent = pad2(hours);
+    minutesEl.textContent = pad2(minutes);
+    secondsEl.textContent = pad2(seconds);
+  }
+
+  tick();
+  setInterval(tick, 1000);
+}
+
+startCountdown();
+
 const menuButton = document.querySelector(".menu-toggle");
 const navigation = document.querySelector(".site-nav");
 
