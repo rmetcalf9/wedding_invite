@@ -1,3 +1,37 @@
+const ceemony_date = {
+  // Single source of truth for the wedding date/time
+  weekday: 'Saturday',
+  day: '17',
+  month: 'July',
+  year: '2027',
+  // Requested: 3pm (display as 3:00 PM)
+  timeDisplay: '3:00 PM'
+};
+
+function renderCeremonyDate(){
+  const heroDate = document.querySelector('[data-ceremony="hero-date"]');
+  if (heroDate){
+    heroDate.textContent = `${ceemony_date.weekday.toUpperCase()} · ${ceemony_date.day} ${ceemony_date.month.toUpperCase()} ${ceemony_date.year}`;
+  }
+
+  const stampDay = document.querySelector('[data-ceremony="stamp-day"]');
+  if (stampDay) stampDay.textContent = ceemony_date.day;
+
+  const stampMonth = document.querySelector('[data-ceremony="stamp-month"]');
+  if (stampMonth) stampMonth.textContent = ceemony_date.month.toUpperCase();
+
+  const stampYear = document.querySelector('[data-ceremony="stamp-year"]');
+  if (stampYear) stampYear.textContent = ceemony_date.year;
+
+  const ceremonyTimeEl = document.querySelector('[data-ceremony="ceremony-time"]');
+  if (ceremonyTimeEl) ceremonyTimeEl.textContent = ceemony_date.timeDisplay;
+
+  const footerEl = document.querySelector('[data-ceremony="footer-month-year"]');
+  if (footerEl) footerEl.textContent = `${ceemony_date.month.toUpperCase()} ${ceemony_date.year}`;
+}
+
+renderCeremonyDate();
+
 const menuButton = document.querySelector(".menu-toggle");
 const navigation = document.querySelector(".site-nav");
 
