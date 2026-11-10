@@ -1,89 +1,155 @@
-const ceemony_date = {
-  // Single source of truth for the wedding date/time
-  weekday: 'Saturday',
-  day: '17',
-  month: 'July',
-  year: '2027',
-  // Also used for the compact circle stamp (MM DD YY)
-  monthTwoDigit: '07',
-  yearTwoDigit: '27',
 
-  // Requested: 3pm (display as 3:00 PM)
-  timeDisplay: '3:00 PM'
+const ceremony_info = {
+  // Single source of truth for the wedding date/time
+  year: 2027,
+  month: 7,
+  day: 17,
+  time_hour: 14,
+  time_minute: 0,
+  timezone: 'Europe/London'
 };
 
-function renderCeremonyDate(){
-  const heroDate = document.querySelector('[data-ceremony="hero-date"]');
-  if (heroDate){
-    heroDate.textContent = `${ceemony_date.weekday.toUpperCase()} · ${ceemony_date.day} ${ceemony_date.month.toUpperCase()} ${ceemony_date.year}`;
-  }
+const reception_info = {
+  time_hour: 16,
+  time_minute: 0
+};
 
-  const stampDay = document.querySelector('[data-ceremony="stamp-day"]');
-  if (stampDay) stampDay.textContent = ceemony_date.day;
+// Derive date information from the numeric configuration
+function ceremonyDateInfo() {
+  const date = new Date(Date.UTC(
+    ceremony_info.year,
+    ceremony_info.month - 1,
+    ceremony_info.day
+  ));
 
-  const stampMonth = document.querySelector('[data-ceremony="stamp-month"]');
-  if (stampMonth) stampMonth.textContent = ceemony_date.monthTwoDigit;
+  return {
+    weekday: new Intl.DateTimeFormat('en-GB', {
+      weekday: 'long',
+      timeZone: 'UTC'
+    }).format(date),
 
-  const stampYear = document.querySelector('[data-ceremony="stamp-year"]');
-  if (stampYear) stampYear.textContent = ceemony_date.yearTwoDigit;
+    monthName: new Intl.DateTimeFormat('en-GB', {
+      month: 'long',
+      timeZone: 'UTC'
+    }).format(date),
 
-  const ceremonyTimeEl = document.querySelector('[data-ceremony="ceremony-time"]');
-  if (ceremonyTimeEl) ceremonyTimeEl.textContent = ceemony_date.timeDisplay;
-
-  const footerEl = document.querySelector('[data-ceremony="footer-month-year"]');
-  if (footerEl) footerEl.textContent = `${ceemony_date.month.toUpperCase()} ${ceemony_date.year}`;
-}
-
-renderCeremonyDate();
-
-function monthNameToIndex(monthName){
-  const map = {
-    January: 0,
-    February: 1,
-    March: 2,
-    April: 3,
-    May: 4,
-    June: 5,
-    July: 6,
-    August: 7,
-    September: 8,
-    October: 9,
-    November: 10,
-    December: 11
+    monthTwoDigit: String(ceremony_info.month).padStart(2, '0'),
+    yearTwoDigit: String(ceremony_info.year).slice(-2)
   };
-  return map[monthName];
 }
 
-function ceremonyTargetDate(){
-  // ceemony_date.timeDisplay is currently always 3:00 PM; we compute using fixed 24h time
-  const monthIndex = monthNameToIndex(ceemony_date.month);
+// Convert a London local date/time into an absolute Date
+function makeDate(source) {
+  const { year, month, day, timezone } = ceremony_info;
+  const hour = source.time_hour;
+  const minute = source.time_minute;
+
+  // Initial UTC approximation
+  const utcDate = new Date(Date.UTC(
+    year, month - 1, day, hour, minute
+  ));
+
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23'
+  });
+
+  const parts = Object.fromEntries(
+    formatter.formatToParts(utcDate)
+      .map(part => [part.type, part.value])
+  );
+
+  const representedAsUtc = Date.UTC(
+    Number(parts.year),
+    Number(parts.month) - 1,
+    Number(parts.day),
+    Number(parts.hour),
+    Number(parts.minute),
+    Number(parts.second)
+  );
+
   return new Date(
-    Number(ceemony_date.year),
-    monthIndex,
-    Number(ceemony_date.day),
-    15, // 3pm
-    0,
-    0,
-    0
+    utcDate.getTime() + (utcDate.getTime() - representedAsUtc)
   );
 }
 
-function startCountdown(){
+function ceremonyTargetDate() {
+  return makeDate(ceremony_info);
+}
+
+function receptionTargetDate() {
+  return makeDate(reception_info);
+}
+
+function renderAllInfo() {
+  const ceremonyDate = ceremonyTargetDate();
+  const receptionDate = receptionTargetDate();
+  const dateInfo = ceremonyDateInfo();
+
+  const heroDate = document.querySelector('[data-ceremony="hero-date"]');
+  if (heroDate) {
+    heroDate.textContent =
+      `${dateInfo.weekday.toUpperCase()} · ${ceremony_info.day} ${dateInfo.monthName.toUpperCase()} ${ceremony_info.year}`;
+  }
+
+  const stampDay = document.querySelector('[data-ceremony="stamp-day"]');
+  if (stampDay) stampDay.textContent = String(ceremony_info.day);
+
+  const stampMonth = document.querySelector('[data-ceremony="stamp-month"]');
+  if (stampMonth) stampMonth.textContent = dateInfo.monthTwoDigit;
+
+  const stampYear = document.querySelector('[data-ceremony="stamp-year"]');
+  if (stampYear) stampYear.textContent = dateInfo.yearTwoDigit;
+
+  const timeFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: ceremony_info.timezone,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+
+  const ceremonyTimeEl = document.querySelector('[data-ceremony="ceremony-time"]');
+  if (ceremonyTimeEl) {
+    ceremonyTimeEl.textContent = timeFormatter.format(ceremonyDate);
+  }
+
+  const footerEl = document.querySelector('[data-ceremony="footer-month-year"]');
+  if (footerEl) {
+    footerEl.textContent =
+      `${dateInfo.monthName.toUpperCase()} ${ceremony_info.year}`;
+  }
+
+  const receptionTimeEl = document.querySelector('[data-ceremony="reception-time"]');
+  if (receptionTimeEl) {
+    receptionTimeEl.textContent = timeFormatter.format(receptionDate);
+  }
+}
+
+renderAllInfo();
+
+function startCountdown() {
   const daysEl = document.getElementById('cd-days');
   const hoursEl = document.getElementById('cd-hours');
   const minutesEl = document.getElementById('cd-minutes');
   const secondsEl = document.getElementById('cd-seconds');
+
   if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
   const target = ceremonyTargetDate();
 
   const pad2 = (n) => String(n).padStart(2, '0');
 
-  function tick(){
+  function tick() {
     const now = new Date();
     const diffMs = target - now;
 
-    if (diffMs <= 0){
+    if (diffMs <= 0) {
       daysEl.textContent = '0';
       hoursEl.textContent = '00';
       minutesEl.textContent = '00';
@@ -109,53 +175,69 @@ function startCountdown(){
 
 startCountdown();
 
-const menuButton = document.querySelector(".menu-toggle");
-const navigation = document.querySelector(".site-nav");
+// Mobile navigation
+const menuButton = document.querySelector('.menu-toggle');
+const navigation = document.querySelector('.site-nav');
 
-menuButton?.addEventListener("click", () => {
-  const isOpen = menuButton.getAttribute("aria-expanded") === "true";
-  menuButton.setAttribute("aria-expanded", String(!isOpen));
-  menuButton.setAttribute("aria-label", isOpen ? "Open navigation" : "Close navigation");
-  navigation.classList.toggle("is-open", !isOpen);
+menuButton?.addEventListener('click', () => {
+  const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+
+  menuButton.setAttribute('aria-expanded', String(!isOpen));
+  menuButton.setAttribute('aria-label', isOpen ? 'Open navigation' : 'Close navigation');
+
+  navigation?.classList.toggle('is-open', !isOpen);
 });
 
-navigation?.querySelectorAll("a").forEach(link => {
-  link.addEventListener("click", () => {
-    navigation.classList.remove("is-open");
-    menuButton?.setAttribute("aria-expanded", "false");
-    menuButton?.setAttribute("aria-label", "Open navigation");
+navigation?.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    navigation.classList.remove('is-open');
+    menuButton?.setAttribute('aria-expanded', 'false');
+    menuButton?.setAttribute('aria-label', 'Open navigation');
   });
 });
 
-const revealItems = document.querySelectorAll(".reveal");
-if ("IntersectionObserver" in window) {
+// Scroll reveal animations
+const revealItems = document.querySelectorAll('.reveal');
+
+if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
+        entry.target.classList.add('is-visible');
         observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.12 });
+
   revealItems.forEach(item => observer.observe(item));
 } else {
-  revealItems.forEach(item => item.classList.add("is-visible"));
+  revealItems.forEach(item => item.classList.add('is-visible'));
 }
 
-// Static GitHub Pages has no server to receive RSVP submissions.
+// RSVP form
+// Static GitHub Pages has no server to receive submissions.
 // Until a Formspree endpoint is configured, create an email for the couple.
-document.querySelector("#rsvp-form")?.addEventListener("submit", event => {
+document.querySelector('#rsvp-form')?.addEventListener('submit', event => {
   event.preventDefault();
+
   const form = event.currentTarget;
   if (!form.reportValidity()) return;
 
   const data = new FormData(form);
-  const recipient = form.dataset.email || "hello@example.com";
-  const subject = encodeURIComponent(`Wedding RSVP — ${data.get("name")}`);
+  const recipient = form.dataset.email || 'hello@example.com';
+
+  const subject = encodeURIComponent(`Wedding RSVP — ${data.get('name')}`);
+
   const body = encodeURIComponent(
-    `Name: ${data.get("name")}\nEmail: ${data.get("email")}\nAttendance: ${data.get("attendance")}\nNotes: ${data.get("notes") || "None"}`
+    `Name: ${data.get('name')}\nEmail: ${data.get('email')}\nAttendance: ${data.get('attendance')}\nNotes: ${data.get('notes') || 'None'}`
   );
-  document.querySelector("#form-message").textContent =
-    "Your email app should open with your RSVP. Please send the email to complete your reply.";
+
+  const messageEl = document.querySelector('#form-message');
+
+  if (messageEl) {
+    messageEl.textContent =
+      'Your email app should open with your RSVP. Please send the email to complete your reply.';
+  }
+
   window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
 });
