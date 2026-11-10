@@ -1,0 +1,79 @@
+
+<div id="invitation-scene" class="invitation-scene">
+
+  <div class="invitation-stage">
+
+    <!-- The envelope -->
+    <div
+      id="envelope-open"
+      class="envelope-shell"
+      role="button"
+      tabindex="0"
+      aria-label="Open your invitation"
+    >
+      <div class="envelope-inner">
+
+        <!-- Front of envelope -->
+        <div class="envelope-face envelope-front">
+          <div class="front-border"></div>
+          <div class="front-wording">Your Invitation</div>
+          <div class="front-rule"></div>
+        </div>
+
+        <!-- Back of envelope -->
+        <div class="envelope-face envelope-back">
+
+          <!-- Base of the envelope -->
+          <div class="back-paper"></div>
+
+          <!-- Invitation paper, initially tucked inside -->
+          <div id="invitation-card" class="invitation-card">
+            <div class="card-content">
+              <div class="card-monogram">E <span>&</span> R</div>
+
+              <div class="card-rule"></div>
+
+              <p class="card-intro">Together with their families</p>
+
+              <h1>Elizabeth <span>&</span> Robert</h1>
+
+              <p class="card-wording">
+                invite you to join them<br>
+                as they celebrate their marriage
+              </p>
+
+              <div class="card-rule card-rule-bottom"></div>
+
+              <button id="invitation-continue" class="invitation-continue">
+                Click for details
+                <span aria-hidden="true">↓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- The front folds of the envelope pocket -->
+          <div class="envelope-pocket-front"></div>
+
+          <!-- Top flap, with the seal attached to it -->
+          <div id="envelope-flap" class="envelope-flap">
+            <div class="wax-seal">
+              <span>E</span>
+              <span class="seal-ampersand">&</span>
+              <span>R</span>
+            </div>
+          </div>
+
+          <!-- Names printed on the back -->
+          <div class="back-title">
+            Elizabeth <span>&</span> Robert
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="envelope-hint">Tap to open</div>
+
+</div>

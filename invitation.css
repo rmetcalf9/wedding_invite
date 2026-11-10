@@ -1,0 +1,472 @@
+
+/* ==========================================
+   Wedding invitation overlay
+   All styles are scoped to the invitation.
+   ========================================== */
+
+#wedding-invitation {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: #fff;
+  opacity: 1;
+  transition: opacity 1.2s ease;
+}
+
+#wedding-invitation.is-dismissed {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.invitation-scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  overflow: visible;
+  background: #fff;
+}
+
+.invitation-stage {
+  position: relative;
+  width: min(90vw, 430px);
+  height: 390px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* ==========================================
+   Envelope
+   ========================================== */
+
+.envelope-shell {
+  position: relative;
+  width: min(330px, 82vw);
+  height: min(215px, 54vw);
+  min-height: 170px;
+  z-index: 3;
+  transform-style: preserve-3d;
+  transition: transform var(--paper-duration) ease;
+}
+
+.envelope-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--flip-duration) ease;
+}
+
+.envelope-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* ==========================================
+   Front of envelope
+   ========================================== */
+
+.envelope-front {
+  overflow: hidden;
+  z-index: 2;
+  background: #e9dfd0;
+  border: 1px solid #d5c7b5;
+  box-shadow: 0 14px 35px rgba(65, 49, 32, 0.15);
+}
+
+.front-border {
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(139, 116, 87, 0.45);
+  pointer-events: none;
+}
+
+.front-wording {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  text-align: center;
+  color: #78644e;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: normal;
+  letter-spacing: 1.5px;
+}
+
+.front-rule {
+  position: absolute;
+  left: 35%;
+  right: 35%;
+  top: calc(50% + 28px);
+  height: 1px;
+  background: #b8a58c;
+}
+
+/* ==========================================
+   Back of envelope
+   ========================================== */
+
+.envelope-back {
+  transform: rotateY(180deg);
+  background: #e9dfd0;
+
+  /*
+    The card can extend above the envelope,
+    but anything below its bottom edge is clipped.
+  */
+  overflow: visible;
+  clip-path: inset(-180px 0 0 0);
+}
+
+.back-paper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #e9dfd0;
+  border: 1px solid #d5c7b5;
+  box-shadow: 0 14px 35px rgba(65, 49, 32, 0.15);
+}
+
+/* ==========================================
+   Invitation card
+   ========================================== */
+
+.invitation-card {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 88%;
+  height: 265px;
+  z-index: 2;
+
+  transform: translate(-50%, 180px);
+  transition: transform var(--paper-duration) ease;
+
+  background: #fffdf8;
+  border: 1px solid #ded3c3;
+  box-shadow: 0 5px 18px rgba(65, 49, 32, 0.16);
+}
+
+.card-content {
+  position: absolute;
+  inset: 10px;
+  border: 1px solid #d9cbb8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  color: #62513f;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.card-monogram {
+  font-size: 24px;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  color: #8b7457;
+}
+
+.card-monogram span {
+  font-size: 17px;
+  font-style: italic;
+}
+
+.card-rule {
+  width: 65px;
+  height: 1px;
+  background: #b8a58c;
+  margin: 5px auto 12px;
+}
+
+.card-intro {
+  font-size: 11px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+
+.card-content h1 {
+  font-size: clamp(21px, 5vw, 27px);
+  font-weight: normal;
+  line-height: 1.2;
+  margin: 0 0 12px;
+  color: #78644e;
+}
+
+.card-content h1 span {
+  font-style: italic;
+}
+
+.card-wording {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.card-rule-bottom {
+  margin: 13px auto 8px;
+}
+
+/* ==========================================
+   Envelope pocket
+   ========================================== */
+
+.envelope-pocket-front {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(
+    145deg,
+    #eee5d8 0%,
+    #e4d8c7 100%
+  );
+  clip-path: polygon(
+    0 42%,
+    50% 83%,
+    100% 42%,
+    100% 100%,
+    0 100%
+  );
+  border-bottom: 1px solid #d5c7b5;
+}
+
+/* ==========================================
+   Envelope flap
+   ========================================== */
+
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 58%;
+  z-index: 4;
+
+  background: linear-gradient(
+    180deg,
+    #f0e7da 0%,
+    #e2d5c3 100%
+  );
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    50% 100%
+  );
+
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+
+  transform: rotateX(0deg);
+
+  /*
+    The flap starts above the contents.
+    Once its opening animation finishes,
+    its z-index changes so it sits behind them.
+  */
+  transition:
+    transform var(--flap-duration) ease,
+    z-index 0s linear var(--flap-duration);
+}
+
+.wax-seal {
+  position: absolute;
+  top: 65%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+
+  background: #9b6256;
+  color: #f8eee4;
+  border: 2px solid #b98475;
+  box-shadow: 0 2px 5px rgba(65, 35, 30, 0.2);
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+}
+
+.seal-ampersand {
+  font-size: 10px;
+  font-style: italic;
+}
+
+/* ==========================================
+   Names on the envelope
+   ========================================== */
+
+.back-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: auto;
+  bottom: 12px;
+  z-index: 5;
+
+  text-align: center;
+  pointer-events: none;
+
+  color: #78644e;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+}
+
+.back-title span {
+  font-style: italic;
+}
+
+/* ==========================================
+   Continue button on invitation card
+   ========================================== */
+
+.invitation-continue {
+  border: 0;
+  background: transparent;
+  color: #8b7457;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  padding: 5px 8px;
+  margin-top: 2px;
+}
+
+.invitation-continue span {
+  display: inline-block;
+  margin-left: 5px;
+  transition: transform 0.2s ease;
+}
+
+.invitation-continue:hover span {
+  transform: translateY(3px);
+}
+
+/* ==========================================
+   Animation states
+   ========================================== */
+
+/* Flip the envelope to reveal its back */
+.invitation-scene.is-flipping .envelope-inner {
+  transform: rotateY(180deg);
+}
+
+/* Open the flap */
+.invitation-scene.is-flap-opening .envelope-flap {
+  transform: rotateX(180deg);
+  z-index: 1;
+}
+
+/* Move the envelope down and slide the card upwards */
+.invitation-scene.is-revealing .envelope-shell {
+  transform: translateY(65px);
+}
+
+.invitation-scene.is-revealing .invitation-card {
+  transform: translate(-50%, -110px);
+}
+
+/* ==========================================
+   Tap instruction
+   ========================================== */
+
+.envelope-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + 145px);
+
+  text-align: center;
+  color: #9a8975;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* The hint is a sibling of the scene */
+.invitation-scene.is-flipping ~ .envelope-hint {
+  opacity: 0;
+}
+
+/* ==========================================
+   Mobile layout
+   ========================================== */
+
+@media (max-width: 480px) {
+  .invitation-stage {
+    width: 94vw;
+    height: 360px;
+  }
+
+  .envelope-shell {
+    width: min(330px, 86vw);
+    height: min(215px, 56vw);
+  }
+
+  .invitation-scene.is-revealing .envelope-shell {
+    transform: translateY(75px);
+  }
+
+  .invitation-scene.is-revealing .invitation-card {
+    transform: translate(-50%, -100px);
+  }
+
+  .invitation-card {
+    height: 255px;
+  }
+
+  .card-content {
+    padding: 8px;
+  }
+
+  .back-title {
+    bottom: 10px;
+    font-size: 15px;
+  }
+
+  .envelope-hint {
+    top: calc(50% + 130px);
+  }
+}
+
+/* ==========================================
+   Reduced motion accessibility
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  #wedding-invitation,
+  .envelope-shell,
+  .envelope-inner,
+  .envelope-flap,
+  .invitation-card,
+  .envelope-hint {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
