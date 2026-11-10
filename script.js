@@ -87,7 +87,22 @@ function receptionTargetDate() {
   return makeDate(reception_info);
 }
 
-function renderAllInfo() {
+async function renderAllInfo() {
+  // console.log('script.js renderAllInfo started')
+  try {
+    // console.log('Waiting for invitation data...');
+
+    const invitation = await window.weddingInvitationDataReady;
+
+    console.log('Invitation data received:', invitation);
+    console.log('ID:', invitation.id);
+    console.log('Envelope front:', invitation.envelope_front);
+    console.log('Guests:', invitation.guests);
+
+  } catch (error) {
+    console.error('Failed to retrieve invitation data:', error);
+  }
+
   const ceremonyDate = ceremonyTargetDate();
   const receptionDate = receptionTargetDate();
   const dateInfo = ceremonyDateInfo();

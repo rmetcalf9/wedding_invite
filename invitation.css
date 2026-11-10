@@ -46,13 +46,30 @@
    ========================================== */
 
 .envelope-shell {
-  position: relative;
-  width: min(330px, 82vw);
-  height: min(215px, 54vw);
-  min-height: 170px;
-  z-index: 3;
-  transform-style: preserve-3d;
-  transition: transform var(--paper-duration) ease;
+   position: relative;
+   width: min(330px, 82vw);
+   height: min(215px, 54vw);
+   min-height: 170px;
+   z-index: 3;
+   transform-style: preserve-3d;
+
+   opacity: 0;
+   visibility: hidden;
+
+   transition:
+     transform var(--paper-duration) ease,
+     opacity 1.5s ease,
+     visibility 0s linear 1.5s;
+}
+
+/* Only show the envelope once its data has been loaded */
+.invitation-scene.is-ready .envelope-shell {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    transform var(--paper-duration) ease,
+    opacity 1.5s ease,
+    visibility 0s;
 }
 
 .envelope-inner {
@@ -469,4 +486,27 @@
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
   }
+}
+
+.envelope-hint {
+  pointer-events: auto !important;
+  cursor: pointer;
+  z-index: 10;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.invitation-scene.is-opening ~ .envelope-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.envelope-hint {
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+
+.envelope-hint.is-hidden {
+  opacity: 0;
+  pointer-events: none;
 }

@@ -12,12 +12,10 @@
 
   const ANIMATION_SPEED = 2;
 
-  // Original animation durations, in milliseconds
   const FLIP_TIME = 950;
   const FLAP_TIME = 650;
   const PAPER_TIME = 950;
 
-  // Apply the speed multiplier
   const flipDuration = FLIP_TIME * ANIMATION_SPEED;
   const flapDuration = FLAP_TIME * ANIMATION_SPEED;
   const paperDuration = PAPER_TIME * ANIMATION_SPEED;
@@ -34,23 +32,72 @@
 
   try {
 
-    // Load the invitation stylesheet
+    // ==========================================
+    // 1. Read the invitation ID from the URL
+    // ==========================================
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const invitationId = urlParams.get("id");
+
+    // ==========================================
+    // 2. Request the invitation data
+    // ==========================================
+
+    if (!window.WeddingInvitationData) {
+      throw new Error("Invitation data layer has not been loaded.");
+    }
+
+    const dataPromise =
+      window.WeddingInvitationData.getInvitationData(invitationId);
+
+    /*
+     * Expose the data promise globally so the existing
+     * website script.js can also use the invitation data.
+     */
+    window.weddingInvitationDataReady = dataPromise.then(response => {
+
+      if (!response || !response.body) {
+        throw new Error("Invalid invitation data response.");
+      }
+
+      window.weddingInvitationData = response.body;
+
+      return response.body;
+    });
+
+    // ==========================================
+    // 3. Load the invitation stylesheet
+    // ==========================================
+
     const stylesheet = document.createElement("link");
+
     stylesheet.rel = "stylesheet";
     stylesheet.href = new URL("invitation.css", baseUrl).href;
 
-    await new Promise((resolve, reject) => {
+    const stylesheetPromise = new Promise((resolve, reject) => {
       stylesheet.onload = resolve;
       stylesheet.onerror = reject;
       document.head.appendChild(stylesheet);
     });
 
-    // Set animation durations in the CSS
+    // Set animation durations
     root.style.setProperty("--flip-duration", `${flipDuration}ms`);
     root.style.setProperty("--flap-duration", `${flapDuration}ms`);
     root.style.setProperty("--paper-duration", `${paperDuration}ms`);
 
-    // Load invitation markup
+    // ==========================================
+    // 4. Wait for both data and stylesheet
+    // ==========================================
+
+    const [invitationData] = await Promise.all([
+      window.weddingInvitationDataReady,
+      stylesheetPromise
+    ]);
+
+    // ==========================================
+    // 5. Load the invitation HTML
+    // ==========================================
+
     const response = await fetch(
       new URL("invitation.html", baseUrl).href
     );
@@ -63,60 +110,112 @@
 
     root.innerHTML = await response.text();
 
+    // ==========================================
+    // 6. Populate the invitation
+    // ==========================================
+
     const scene = root.querySelector("#invitation-scene");
     const envelope = root.querySelector("#envelope-open");
+    const frontLabel = root.querySelector("#envelope-front-label");
     const continueButton = root.querySelector("#invitation-continue");
+    const hint = root.querySelector(".envelope-hint");
 
-    if (!scene || !envelope || !continueButton) {
+    if (!scene || !envelope || !frontLabel || !continueButton) {
       throw new Error("One or more invitation elements could not be found.");
     }
 
-    let openingStarted = false;
+    // Set the envelope front text before revealing it
+    frontLabel.textContent =
+      invitationData.envelope_front || "Your Invitation";
 
     // ==========================================
-    // OPENING SEQUENCE
+    // 7. Reveal the envelope
     // ==========================================
+
+    // Allow the browser to render the envelope in its
+    // initial invisible state before starting the fade.
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        scene.classList.add("is-ready");
+      });
+    });
+
+    // ==========================================
+    // 8. Envelope opening animation
+    // ==========================================
+
+    let openingStarted = false;
+    let invitationFullyOpen = false;
 
     function startOpening() {
+      window.setTimeout(() => {
+        invitationFullyOpen = true;
+      }, flipDuration + flapDuration + paperDuration);
 
-      // Prevent repeated clicks
-      if (openingStarted) {
-        return;
-      }
+      if (openingStarted) return;
 
       openingStarted = true;
 
-      // Stage 1: flip the envelope to reveal the back
+      if (hint) {
+        hint.classList.add("is-hidden");
+      }
+
       scene.classList.add("is-flipping");
 
-      // Stage 2: open the triangular flap
       window.setTimeout(() => {
         scene.classList.add("is-flap-opening");
       }, flipDuration);
 
-      // Stage 3: slide the paper out of the envelope
       window.setTimeout(() => {
         scene.classList.add("is-revealing");
       }, flipDuration + flapDuration);
     }
 
-    // Mouse and touch
     envelope.addEventListener("click", startOpening);
+    if (hint) {
+      hint.style.pointerEvents = "auto";
+      hint.style.cursor = "pointer";
+      hint.style.zIndex = "10";
+      hint.setAttribute("role", "button");
+      hint.setAttribute("tabindex", "0");
+      hint.setAttribute("aria-label", "Tap to open your invitation");
 
-    // Keyboard accessibility
+      hint.addEventListener("click", startOpening);
+
+      hint.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          startOpening();
+        }
+      });
+    }
+
     envelope.addEventListener("keydown", (event) => {
+
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         startOpening();
       }
+
     });
 
     // ==========================================
-    // DISMISS INVITATION
+    // 9. Continue to the website
     // ==========================================
 
-    continueButton.addEventListener("click", (event) => {
-      event.stopPropagation();
+    let invitationDismissed = false;
+    let lastTapTime = 0;
+
+    function continueToWebsite(force = false) {
+
+      // Normal single taps only work once fully open.
+      // Double taps can bypass the animation.
+      if ((!invitationFullyOpen && !force) || invitationDismissed) {
+        return;
+      }
+
+      invitationDismissed = true;
 
       root.classList.add("is-dismissed");
       root.setAttribute("aria-hidden", "true");
@@ -124,14 +223,43 @@
       window.setTimeout(() => {
         root.remove();
       }, 1250);
+    }
+
+    // Detect double taps/clicks anywhere on the overlay.
+    root.addEventListener("click", (event) => {
+
+      const now = Date.now();
+      const DOUBLE_TAP_DELAY = 450;
+
+      if (now - lastTapTime < DOUBLE_TAP_DELAY) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        continueToWebsite(true);
+        return;
+      }
+
+      lastTapTime = now;
+
+      // A normal single tap continues once the invitation is fully open.
+      continueToWebsite();
+
+    });
+
+    // Keep the button working too.
+    continueButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      continueToWebsite();
     });
 
   } catch (error) {
 
     console.error("Could not initialise wedding invitation:", error);
 
-    // Never leave visitors stuck on a white screen
-    root.remove();
+    /*
+     * Leave the overlay white if loading fails.
+     * Do not reveal an invitation with missing data.
+     */
   }
 
 })();
