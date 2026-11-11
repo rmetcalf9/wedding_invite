@@ -16,8 +16,9 @@ body: {
     {
       name: "Bob",
       status: "not_answered"    (unknown/decline/accept)
-    }
-    response_received_date:
+    },
+    response_received_date:,
+    response_message: text
   ]
 }
 
