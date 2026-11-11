@@ -9,9 +9,13 @@ Github action does the Publish
 
 ## Service data structure
 
+curl https://api2.metcarob.com/get_wedding_invite?id=sadsd
+
 body: {
   id: "ddddd",    (none is special value)
   envelope_front: "Boy & Mary Metcalf",
+  field_1: ,
+  field_2: ,
   guests: [
     {
       name: "Bob",
@@ -27,7 +31,7 @@ body: {
 body: {
   id: "none",
   envelope_front: "Your Invitation",
-  guests: []
+2  guests: []
 }
 
 # Sample two guests

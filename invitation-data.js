@@ -19,6 +19,8 @@ window.WeddingInvitationData = {
       body: {
         id: id || "none",
         envelope_front: "Your Invitation",
+        field_1: "",
+        field_2: "",
         guests: []
       }
     };
