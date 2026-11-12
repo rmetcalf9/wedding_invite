@@ -104,9 +104,37 @@ export function initMusicPlayer({
 
     const base = Math.max(startAtSeconds, now + 0.01);
 
-    dbg('Scheduling notes', { noteCount: notes.length, base, startAtSeconds, now, muted });
+    const sample = notes[0];
+    dbg('Scheduling notes', {
+      noteCount: notes.length,
+      base,
+      startAtSeconds,
+      now,
+      muted,
+      sample: sample
+        ? {
+            midi: sample.midi,
+            noteNumber: sample.noteNumber,
+            time: sample.time,
+            duration: sample.duration,
+            velocity: sample.velocity,
+          }
+        : null,
+    });
+
+    let midiMin = Infinity;
+    let midiMax = -Infinity;
 
     for (const n of notes) {
+      const midiNumber =
+        (typeof n.midi === 'number' ? n.midi : null) ??
+        (typeof n.noteNumber === 'number' ? n.noteNumber : null);
+
+      if (typeof midiNumber !== 'number' || !Number.isFinite(midiNumber)) continue;
+
+      midiMin = Math.min(midiMin, midiNumber);
+      midiMax = Math.max(midiMax, midiNumber);
+
       const t0 = base + n.time;
       const t1 = t0 + Math.max(0.01, n.duration || 0.3);
 
@@ -114,12 +142,12 @@ export function initMusicPlayer({
       const gain = audioCtx.createGain();
 
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(midiNoteToFreq(n.midi), t0);
+      osc.frequency.setValueAtTime(midiNoteToFreq(midiNumber), t0);
 
       // Envelope to avoid clicks.
       const attack = 0.005;
       const release = 0.03;
-      const peak = Math.min(0.9, (n.velocity ?? 0.8));
+      const peak = Math.min(1.2, (n.velocity ?? 0.8) * 1.1);
 
       gain.gain.setValueAtTime(0, t0);
       gain.gain.linearRampToValueAtTime(peak, t0 + attack);
@@ -133,6 +161,12 @@ export function initMusicPlayer({
       osc.stop(t1 + 0.05);
 
       scheduledNoteStops.push({ osc, t1 });
+    }
+
+    if (midiMin !== Infinity) {
+      dbg('MIDI range in notes', { midiMin, midiMax });
+    } else {
+      dbg('No valid MIDI noteNumber found in notes');
     }
   }
 
