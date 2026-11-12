@@ -23,7 +23,6 @@ export function initMusicPlayer({
   let masterGain = null;
 
   let started = false;
-  let autoplayBlocked = false;
 
   let scheduledTimeout = null;
 
@@ -169,10 +168,9 @@ export function initMusicPlayer({
     try {
       await startPlayback();
     } catch (err) {
-      // If autoplay policy blocks resuming the context.
-      autoplayBlocked = true;
+      // Autoplay policy can prevent starting on load; we'll start on first user gesture.
       console.info('[music-player] Playback blocked; waiting for user gesture.', err?.name || err);
-      // We'll rely on user interaction for starting.
+      // We'll rely on user gesture to call playIfNeeded.
     }
   }
 
@@ -197,16 +195,9 @@ export function initMusicPlayer({
     window.addEventListener('click', start, true);
   }
 
-  // Attempt to start immediately, but many browsers will require interaction.
-  void (async () => {
-    try {
-      await playIfNeeded();
-    } catch (err) {
-      // ignore; gesture handler will take over
-      autoplayBlocked = true;
-    }
-    if (autoplayBlocked) installOneTimeUserGesture();
-  })();
+
+  // Start playback the first time the user interacts with the page.
+  installOneTimeUserGesture();
 
   function setMuted(nextMuted) {
     muted = Boolean(nextMuted);
