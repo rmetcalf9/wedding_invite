@@ -203,22 +203,29 @@ export function initMusicPlayer({
 
   async function startPlayback() {
     if (started) return;
-    started = true;
 
     ensureAudioGraph();
-
     dbg('startPlayback: initial audioCtx state', audioCtx?.state);
 
-    // Some browsers keep the context suspended until a gesture.
+    // Attempt to resume. If it fails, we must allow a retry on next user gesture.
     try {
+      dbg('startPlayback: attempting resume', { audioCtxState: audioCtx?.state });
       await audioCtx.resume();
       dbg('startPlayback: audioCtx resumed', audioCtx?.state);
     } catch (err) {
       dbg('startPlayback: audioCtx.resume() failed', err?.name || err);
+      started = false;
+      throw err;
+    }
+
+    // If the context isn't running, don't schedule audio.
+    if (audioCtx.state !== 'running') {
+      dbg('startPlayback: audioCtx not running after resume', { state: audioCtx.state });
+      started = false;
+      throw new Error(`AudioContext state is ${audioCtx.state}`);
     }
 
     applyGain(muted);
-
     await loadMidi();
 
     dbg('startPlayback: before scheduling', {
@@ -227,6 +234,8 @@ export function initMusicPlayer({
       muted,
       midiDurationSeconds,
     });
+
+    started = true;
 
     const startAt = audioCtx.currentTime + 0.05;
     scheduleOnce(startAt);
@@ -238,7 +247,6 @@ export function initMusicPlayer({
       scheduledTimeout = setTimeout(function tick() {
         if (!started) return;
         if (muted) {
-          // Still schedule so it stays in sync.
           applyGain(true);
         } else {
           applyGain(false);
