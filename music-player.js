@@ -1,6 +1,6 @@
 export function initMusicPlayer({
   src,
-  mutedInitially = true,
+  mutedInitially = false,
   loop = true,
   volumeWhenUnmuted = 0.8,
 } = {}) {
