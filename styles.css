@@ -61,8 +61,21 @@ h2 { font-size: clamp(43px, 6vw, 72px); line-height: 1.12; letter-spacing: -.035
 .countdown-mini-date{ margin: 10px 0 -6px; font: 700 11px var(--sans); letter-spacing: .26em; color: var(--sage-dark); text-transform: uppercase; }
 
 .calendar-add{ margin-top: 18px; display:flex; justify-content:center; }
-.calendar-button{ border: 1px solid rgba(255,255,255,.65); background: rgba(255,255,255,.04); color: rgba(255,255,255,.95); padding: 12px 18px; font: 700 10px var(--sans); letter-spacing: .18em; text-transform: uppercase; cursor:pointer; transition: background .2s, border-color .2s, transform .2s; }
-.calendar-button:hover{ border-color: rgba(255,255,255,.95); background: rgba(255,255,255,.08); }
+.calendar-button{
+  border: 1px solid rgba(255,255,255,.65);
+  background: rgba(0,0,0,.55);
+  color: rgba(255,255,255,.95);
+  padding: 12px 18px;
+  font: 700 10px var(--sans);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor:pointer;
+  transition: background .2s, border-color .2s, transform .2s;
+}
+.calendar-button:hover{
+  border-color: rgba(255,255,255,.95);
+  background: rgba(0,0,0,.72);
+}
 .calendar-button:active{ transform: translateY(1px); }
 
 .calendar-details{ position: relative; }
