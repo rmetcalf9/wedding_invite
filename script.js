@@ -266,7 +266,8 @@ async function renderAllInfo() {
       closeDetails();
 
       // Open Google Calendar. On mobile, navigating in the same tab is more reliable.
-      window.location.href = url;
+      const win = window.open(url, '_blank', 'noopener,noreferrer');
+      if (win) win.focus();
     });
 
     appleBtn.addEventListener('click', () => {
@@ -611,7 +612,8 @@ function setupAddToCalendarChooser() {
       '&ctz=' + encodeURIComponent(ceremony_info.timezone);
 
     closeDetails();
-    window.location.href = url;
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if (win) win.focus();
   });
 
   appleBtn.addEventListener('click', (e) => {
