@@ -167,22 +167,18 @@
 
     function startOpening() {
       // The *first* envelope click/tap is the user gesture required to unlock WebAudio.
-      console.log('invitation start opening')
+      // console.log('invitation start opening')
       if (!musicUnlocked) {
         musicUnlocked = true;
-        console.log('unlocking music')
         try {
           if (typeof window.weddingRequestMusicUnlock === 'function') {
-            console.log('unlocking music A')
             window.weddingRequestMusicUnlock();
           } else if (
             window.weddingMusic &&
             typeof window.weddingMusic.playIfNeeded === 'function'
           ) {
-            console.log('unlocking music B')
             void window.weddingMusic.playIfNeeded();
           } else {
-            console.log('unlocking music C')
           }
         } catch {
           // ignore

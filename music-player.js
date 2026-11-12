@@ -74,9 +74,7 @@ export function initMusicPlayer({
 
   async function startPlayback() {
     // Must be called from a user gesture.
-    console.log('music-player startPlayback')
     await loadMidiAudioPlayerLib();
-    console.log('music-player startPlayback2 - after loadMidiAudioPlayerLib')
 
     if (!player) {
       const MidiAudioPlayer = getMidiAudioPlayerCtor();
@@ -89,7 +87,6 @@ export function initMusicPlayer({
     }
 
     if (!playerConfigured) {
-      console.log('music-player !playerConfigured')
       playerConfigured = true;
       try {
         if (typeof player.on === 'function' && loop) {
@@ -108,7 +105,6 @@ export function initMusicPlayer({
 
     // If we already started, just apply volume and return.
     if (playbackStarted) {
-      console.log('music-player playbackStarted -> applyVolume')
       applyVolume();
       return;
     }
@@ -116,17 +112,13 @@ export function initMusicPlayer({
     // If currently muted, set a *tiny* volume briefly before play() so the
     // underlying audio graph actually gets activated.
     if (muted) {
-      console.log('music-player muted')
       const tiny = Math.min(0.02, Math.max(0.001, volumeWhenUnmuted * 0.02));
       applyVolume(tiny);
     } else {
-      console.log('music-player not muted')
       applyVolume();
     }
 
-    console.log('music-player await play')
     await player.play(src);
-    console.log('music-player after await play')
 
     playbackStarted = true;
 
