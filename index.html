@@ -40,6 +40,10 @@
       volumeWhenUnmuted: 0.8
     });
 
+    // Expose for invitation.js so the *first* envelope tap counts as the
+    // user gesture required by Chrome's WebAudio autoplay policies.
+    window.weddingMusic = music;
+
     initSoundToggle(music);
   </script>
   <header class="site-header">

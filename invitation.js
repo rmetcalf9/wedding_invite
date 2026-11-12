@@ -161,29 +161,36 @@
     // ==========================================
     // 8. Envelope opening animation
     // ==========================================
-
     let openingStarted = false;
     let invitationFullyOpen = false;
+    let musicUnlocked = false;
 
     function startOpening() {
+      // The *first* envelope click/tap is the user gesture required to unlock WebAudio.
+      if (!musicUnlocked) {
+        musicUnlocked = true;
+        try {
+          const musicApi = window.weddingMusic;
+          if (musicApi && typeof musicApi.playIfNeeded === 'function') {
+            void musicApi.playIfNeeded();
+          }
+        } catch {
+          // ignore
+        }
+      }
+
       window.setTimeout(() => {
         invitationFullyOpen = true;
       }, flipDuration + flapDuration + paperDuration);
-
       if (openingStarted) return;
-
       openingStarted = true;
-
       if (hint) {
         hint.classList.add("is-hidden");
       }
-
       scene.classList.add("is-flipping");
-
       window.setTimeout(() => {
         scene.classList.add("is-flap-opening");
       }, flipDuration);
-
       window.setTimeout(() => {
         scene.classList.add("is-revealing");
       }, flipDuration + flapDuration);

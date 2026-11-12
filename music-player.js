@@ -4,17 +4,6 @@ export function initMusicPlayer({
   loop = true,
   volumeWhenUnmuted = 0.8,
 } = {}) {
-  const DEBUG_MUSIC = false;
-  const dbg = (msg, extra) => {
-    if (!DEBUG_MUSIC) return;
-    try {
-      // eslint-disable-next-line no-console
-      console.log(`[music-player] ${msg}`, extra ?? '');
-    } catch {
-      // ignore
-    }
-  };
-
   if (!src) {
     console.warn('[music-player] No src provided');
     return {
@@ -31,12 +20,13 @@ export function initMusicPlayer({
   let player = null;
   let libLoading = null;
   let playerConfigured = false;
+  let playbackStarted = false;
 
   async function loadMidiAudioPlayerLib() {
     if (player || libLoading) return libLoading;
 
-    // UMD build. We load it on demand after a user gesture.
-    const url = 'https://cdn.jsdelivr.net/npm/midi-audio-player/dist/midi-audio-player.min.js';
+    const url =
+      'https://cdn.jsdelivr.net/npm/midi-audio-player/dist/midi-audio-player.min.js';
 
     libLoading = new Promise((resolve, reject) => {
       // If already present, resolve immediately.
@@ -48,10 +38,9 @@ export function initMusicPlayer({
       const s = document.createElement('script');
       s.src = url;
       s.async = true;
-
       s.onload = () => resolve();
-      s.onerror = () => reject(new Error(`Failed to load MidiAudioPlayer library from ${url}`));
-
+      s.onerror = () =>
+        reject(new Error(`Failed to load midi-audio-player from ${url}`));
       document.head.appendChild(s);
     });
 
@@ -66,45 +55,44 @@ export function initMusicPlayer({
     if (!player) return;
     const v = muted ? 0 : volumeWhenUnmuted;
     try {
-      // Some versions use setVolume, others may read/write a volume property.
       if (typeof player.setVolume === 'function') player.setVolume(v);
       else player.volume = v;
-    } catch (e) {
-      dbg('applyVolume failed', e?.name || e);
+    } catch {
+      // ignore
     }
   }
 
   async function startPlayback() {
-    if (muted) {
-      // If user is muted, do not start playback/audio.
+    // Called from a user gesture (envelope click / sound button click).
+    // If we've already started playback once, just re-apply volume.
+    if (playbackStarted && player) {
+      applyVolume();
       return;
     }
 
-    // Create player only after a user gesture to satisfy Chrome's WebAudio autoplay rules.
     await loadMidiAudioPlayerLib();
 
-    if (!player) {
-      const MidiAudioPlayer = getMidiAudioPlayerCtor();
-      if (!MidiAudioPlayer) {
-        throw new Error('MidiAudioPlayer constructor not found on window after loading');
-      }
+    const MidiAudioPlayer = getMidiAudioPlayerCtor();
+    if (!MidiAudioPlayer) {
+      throw new Error(
+        'MidiAudioPlayer constructor not found on window after loading',
+      );
+    }
 
-      // Keep options minimal for compatibility.
+    if (!player) {
       player = new MidiAudioPlayer({ volume: volumeWhenUnmuted });
     }
 
     if (!playerConfigured) {
       playerConfigured = true;
-
-      // Attempt loop support.
       try {
-        if (typeof player.on === 'function') {
+        if (typeof player.on === 'function' && loop) {
           player.on('endOfFile', () => {
-            if (!loop) return;
+            // Loop restart.
             try {
               void player.play(src);
-            } catch (e) {
-              dbg('loop restart failed', e?.name || e);
+            } catch {
+              // ignore
             }
           });
         }
@@ -113,50 +101,21 @@ export function initMusicPlayer({
       }
     }
 
+    // Even if muted, we start to unlock WebAudio on mobile/Chrome.
     applyVolume();
 
-    dbg('starting playback', { src });
     await player.play(src);
-    dbg('play() resolved');
+    playbackStarted = true;
   }
-
-  function installOneTimeUserGesture() {
-    if (installOneTimeUserGesture._installed) return;
-    installOneTimeUserGesture._installed = true;
-
-    const start = async () => {
-      try {
-        await startPlayback();
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.info('[music-player] startPlayback blocked/failed', e?.name || e);
-      } finally {
-        window.removeEventListener('pointerdown', start, true);
-        window.removeEventListener('touchstart', start, true);
-        window.removeEventListener('keydown', start, true);
-        window.removeEventListener('click', start, true);
-      }
-    };
-
-    window.addEventListener('pointerdown', start, true);
-    window.addEventListener('touchstart', start, true);
-    window.addEventListener('keydown', start, true);
-    window.addEventListener('click', start, true);
-  }
-
-  // We only start on user gesture (and only if unmuted).
-  installOneTimeUserGesture();
 
   function setMuted(nextMuted) {
     muted = Boolean(nextMuted);
-    dbg('setMuted', { muted });
     applyVolume();
 
-    // If the user just unmuted, start immediately (we're still in a user gesture handler).
+    // If unmuting, attempt to start (we're typically inside a user gesture already).
     if (!muted) {
-      void startPlayback().catch((e) => {
-        // eslint-disable-next-line no-console
-        console.info('[music-player] start after unmute failed', e?.name || e);
+      void startPlayback().catch(() => {
+        // ignore (user gesture may have been insufficient)
       });
     }
   }
@@ -166,7 +125,7 @@ export function initMusicPlayer({
   }
 
   function playIfNeeded() {
-    // Used by sound-toggle; we rely on gesture-based activation.
+    // Invitation.js will call this from the *first* envelope click.
     return startPlayback();
   }
 
