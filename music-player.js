@@ -149,16 +149,26 @@ export function initMusicPlayer({
 
     ensureAudioGraph();
 
+    dbg('startPlayback: initial audioCtx state', audioCtx?.state);
+
     // Some browsers keep the context suspended until a gesture.
     try {
       await audioCtx.resume();
-    } catch {
-      // ignore
+      dbg('startPlayback: audioCtx resumed', audioCtx?.state);
+    } catch (err) {
+      dbg('startPlayback: audioCtx.resume() failed', err?.name || err);
     }
 
     applyGain(muted);
 
     await loadMidi();
+
+    dbg('startPlayback: before scheduling', {
+      audioCtxState: audioCtx?.state,
+      audioCtxCurrentTime: audioCtx?.currentTime,
+      muted,
+      midiDurationSeconds,
+    });
 
     const startAt = audioCtx.currentTime + 0.05;
     scheduleOnce(startAt);
@@ -219,8 +229,13 @@ export function initMusicPlayer({
 
   function setMuted(nextMuted) {
     muted = Boolean(nextMuted);
+    dbg('setMuted', { muted });
     if (!masterGain || !audioCtx) return;
     applyGain(muted);
+    dbg('setMuted applied', {
+      audioCtxState: audioCtx.state,
+      currentGain: masterGain.gain.value,
+    });
   }
 
   function toggleMuted() {
