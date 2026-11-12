@@ -243,7 +243,7 @@ async function renderAllInfo() {
     return { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd, description };
   }
 
-  if (googleBtn && appleBtn && googleBtn.dataset.bound !== '1' && appleBtn.dataset.bound !== '1') {
+  if (false) {
     const closeDetails = () => {
       const details = googleBtn.closest('details.calendar-details');
       if (details) details.open = false;
