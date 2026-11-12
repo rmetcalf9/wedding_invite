@@ -116,10 +116,12 @@
   transform: translateY(-50%);
   text-align: center;
   color: #78644e;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 25px;
-  font-weight: normal;
-  letter-spacing: 1.5px;
+  /* Handwritten/script look */
+  font-family: "Dancing Script", "Pacifico", cursive;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-rendering: geometricPrecision;
 }
 
 .front-rule {
