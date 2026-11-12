@@ -6,12 +6,14 @@ const ceremony_info = {
   day: 17,
   time_hour: 14,
   time_minute: 0,
+  duration_minutes: 120,
   timezone: 'Europe/London'
 };
 
 const reception_info = {
   time_hour: 16,
-  time_minute: 0
+  time_minute: 0,
+  duration_minutes: 240
 };
 
 // Derive date information from the numeric configuration
@@ -485,8 +487,8 @@ function setupAddToCalendarChooser() {
   function makeTimes() {
     const ceremonyStart = ceremonyTargetDate();
     const receptionStart = receptionTargetDate();
-    const ceremonyDurationMinutes = 120;
-    const receptionDurationMinutes = 240;
+    const ceremonyDurationMinutes = ceremony_info.duration_minutes;
+    const receptionDurationMinutes = reception_info.duration_minutes;
     const ceremonyEnd = new Date(ceremonyStart.getTime() + ceremonyDurationMinutes * 60 * 1000);
     const receptionEnd = new Date(receptionStart.getTime() + receptionDurationMinutes * 60 * 1000);
     return { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd };
