@@ -210,36 +210,43 @@ function setupRsvp(invitationData){
     const changedMessage = messageEl.value !== initialMessage;
     const anyChange = changedButtons || changedMessage;
 
+    const allAnswered = hasAllAnswered();
+
+    // Gate enabling on all guest responses being chosen
+    if (!allAnswered) {
+      sendBtn.disabled = true;
+      setBtnText(responseReceived ? 'Change your RSVP above' : 'Enter RSVP above');
+      return;
+    }
+
+    // Now all guests have been answered
     if (!responseReceived) {
-      // Requirement 1
+      // Initial submission flow
       if (!anyChange) {
+        // Should be rare (because allAnswered implies buttons changed), but keep safe.
         sendBtn.disabled = true;
         setBtnText('Enter RSVP above');
         return;
       }
 
-      // Requirement 2
-      if (hasAllAnswered()) {
+      // If message changed, treat as an update; otherwise send.
+      if (changedMessage) {
+        sendBtn.disabled = false;
+        setBtnText('Update RSVP');
+      } else {
         sendBtn.disabled = false;
         setBtnText('Send RSVP');
-        return;
       }
-
-      // Requirement 4 (before all guests have answered)
-      sendBtn.disabled = false;
-      setBtnText('Update RSVP');
       return;
     }
 
     // response_received === true
-    // Requirement 3
     if (!anyChange) {
       sendBtn.disabled = true;
       setBtnText('Change your RSVP above');
       return;
     }
 
-    // Requirement 4
     sendBtn.disabled = false;
     setBtnText('Update RSVP');
   }
