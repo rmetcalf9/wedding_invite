@@ -3,4 +3,4 @@ docker run --rm -it \
   -v "$PWD":/app \
   -w /app \
   python:3-alpine \
-  python -m http.server 8000 --bind 0.0.0.0
+  python dev_server.py

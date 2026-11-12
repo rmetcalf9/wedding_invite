@@ -88,20 +88,12 @@ function receptionTargetDate() {
 }
 
 async function renderAllInfo() {
-  // console.log('script.js renderAllInfo started')
-  try {
-    // console.log('Waiting for invitation data...');
 
-    const invitation = await window.weddingInvitationDataReady;
+  // Only render after we have got the invite data
+  const [invitationData] = await Promise.all([
+    window.weddingInvitationDataReady
+  ]);
 
-    console.log('Invitation data received:', invitation);
-    console.log('ID:', invitation.id);
-    console.log('Envelope front:', invitation.envelope_front);
-    console.log('Guests:', invitation.guests);
-
-  } catch (error) {
-    console.error('Failed to retrieve invitation data:', error);
-  }
 
   const ceremonyDate = ceremonyTargetDate();
   const receptionDate = receptionTargetDate();
@@ -143,6 +135,20 @@ async function renderAllInfo() {
   const receptionTimeEl = document.querySelector('[data-ceremony="reception-time"]');
   if (receptionTimeEl) {
     receptionTimeEl.textContent = timeFormatter.format(receptionDate);
+  }
+
+  const showRsvp = invitationData.guests.length > 0
+  // console.log('showRsvp', showRsvp)
+
+  const rsvpSection = document.querySelector('#rsvp');
+  const rsvpNavLink = document.querySelector('.nav-rsvp');
+
+  if (rsvpSection) {
+    rsvpSection.hidden = !showRsvp;
+  }
+
+  if (rsvpNavLink) {
+    rsvpNavLink.hidden = !showRsvp;
   }
 }
 

@@ -1,16 +1,17 @@
 window.WeddingInvitationData = {
 
   async getInvitationData(id) {
+    // console.log('invitation-data.js getInvitationData started')
 
     const fallback = {
       body: {
-        id: id || "none",
+        id: "none",
         envelope_front: "Your Invitation",
         field_1: "",
         field_2: "",
         guests: []
       }
-    };
+    }
 
     try {
       const controller = new AbortController();
