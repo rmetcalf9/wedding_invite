@@ -170,20 +170,22 @@ function setupRsvp(invitationData){
 
   if (!guestsRoot || !messageEl || !sendBtn) return;
 
-  const responseReceived = Boolean(invitationData?.response_received);
+  let responseReceived = Boolean(invitationData?.response_received);
 
   const loadedStatuses = guests.map(g => normalizeGuestStatus(g?.status));
   const loadedMessage = invitationData?.rsvp_message || '';
 
+  const invitationId = invitationData?.id;
+
   // Initial button highlight rules
   // - If response_received is false: nothing is highlighted
   // - If response_received is true: highlight what was previously recorded
-  const initialStatuses = responseReceived
+  let initialStatuses = responseReceived
     ? [...loadedStatuses]
     : guests.map(() => 'not_answered');
 
   let currentStatuses = [...initialStatuses];
-  const initialMessage = loadedMessage;
+  let initialMessage = loadedMessage;
 
   messageEl.value = loadedMessage;
 
@@ -327,8 +329,54 @@ function setupRsvp(invitationData){
 
   messageEl.addEventListener('input', updateSendButton);
 
-  sendBtn.addEventListener('click', () => {
-    console.log('send RSVP not implemented');
+  sendBtn.addEventListener('click', async () => {
+    if (sendBtn.disabled) return;
+
+    if (currentStatuses.some(s => s === 'not_answered')) {
+      console.warn('RSVP not complete for all guests');
+      updateSendButton();
+      return;
+    }
+
+    const payload = {
+      id: invitationId,
+      response_message: messageEl.value,
+      guests: guests.map((g, idx) => ({
+        name: g?.name,
+        status: currentStatuses[idx]
+      }))
+    };
+
+    try {
+      // Optimistically disable while submitting.
+      sendBtn.disabled = true;
+
+      const res = await fetch('https://api2.metcarob.com/post_wedding_invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`RSVP submit failed: ${res.status} ${text}`);
+      }
+
+      // Mark as received in the UI.
+      responseReceived = true;
+      initialStatuses = [...currentStatuses];
+      initialMessage = messageEl.value;
+
+      applyGuestActiveStates();
+      updateSendButton();
+
+      console.log('send RSVP successful');
+    } catch (err) {
+      console.error(err);
+      updateSendButton();
+    }
   });
 
   updateSendButton();
