@@ -386,6 +386,7 @@ function setupRsvp(invitationData){
       applyGuestActiveStates();
       updateSendButton();
 
+      showThankYouToast();
       console.log('send RSVP successful');
     } catch (err) {
       console.error(err);
