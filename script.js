@@ -79,6 +79,73 @@ function makeDate(source) {
   );
 }
 
+function formatICSLocalDateTime(date, timeZone) {
+  const fmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    hourCycle: 'h23'
+  });
+
+  const parts = Object.fromEntries(
+    fmt.formatToParts(date).map(p => [p.type, p.value])
+  );
+
+  return `${parts.year}${parts.month}${parts.day}T${parts.hour}${parts.minute}${parts.second}`;
+}
+
+function formatICSUTCDateTime(date) {
+  const pad = (n) => String(n).padStart(2, '0');
+  return (
+    `${date.getUTCFullYear()}${pad(date.getUTCMonth() + 1)}${pad(date.getUTCDate())}` +
+    `T${pad(date.getUTCHours())}${pad(date.getUTCMinutes())}${pad(date.getUTCSeconds())}Z`
+  );
+}
+
+function buildWeddingICS({ timezone, ceremonyStart, ceremonyEnd, receptionStart, receptionEnd }) {
+  const dtstamp = formatICSUTCDateTime(new Date());
+
+  const ceremonyDtStart = formatICSLocalDateTime(ceremonyStart, timezone);
+  const ceremonyDtEnd = formatICSLocalDateTime(ceremonyEnd, timezone);
+
+  const receptionDtStart = formatICSLocalDateTime(receptionStart, timezone);
+  const receptionDtEnd = formatICSLocalDateTime(receptionEnd, timezone);
+
+  const uidBase = `wedding-invite-${ceremony_info.year}-${String(ceremony_info.month).padStart(2,'0')}-${String(ceremony_info.day).padStart(2,'0')}`;
+
+  return (
+    `BEGIN:VCALENDAR\n` +
+    `VERSION:2.0\n` +
+    `PRODID:-//Wedding Invite//EN\n` +
+    `CALSCALE:GREGORIAN\n` +
+    `METHOD:PUBLISH\n\n` +
+    `BEGIN:VEVENT\n` +
+    `UID:${uidBase}-ceremony@metcarob.com\n` +
+    `DTSTAMP:${dtstamp}\n` +
+    `SUMMARY:Wedding Ceremony\n` +
+    `DTSTART;TZID=${timezone}:${ceremonyDtStart}\n` +
+    `DTEND;TZID=${timezone}:${ceremonyDtEnd}\n` +
+    `LOCATION:Church of St William of York, Forest Hill, 4 Brockley Park, London SE23 1PS\n` +
+    `DESCRIPTION:Wedding ceremony\n` +
+    `END:VEVENT\n\n` +
+    `BEGIN:VEVENT\n` +
+    `UID:${uidBase}-reception@metcarob.com\n` +
+    `DTSTAMP:${dtstamp}\n` +
+    `SUMMARY:Wedding Reception\n` +
+    `DTSTART;TZID=${timezone}:${receptionDtStart}\n` +
+    `DTEND;TZID=${timezone}:${receptionDtEnd}\n` +
+    `LOCATION:St Laurence Church, Catford, 37 Bromley Rd, London SE6 2TS\n` +
+    `DESCRIPTION:Wedding reception\n` +
+    `END:VEVENT\n\n` +
+    `END:VCALENDAR\n`
+  );
+}
+
 function ceremonyTargetDate() {
   return makeDate(ceremony_info);
 }
@@ -135,6 +202,42 @@ async function renderAllInfo() {
   const receptionTimeEl = document.querySelector('[data-ceremony="reception-time"]');
   if (receptionTimeEl) {
     receptionTimeEl.textContent = timeFormatter.format(receptionDate);
+  }
+
+  // Add to calendar (Google + Apple) - downloads an .ics file with Europe/London TZID
+  const addCalendarBtn = document.getElementById('add-to-calendar');
+  if (addCalendarBtn && !addCalendarBtn.dataset.bound) {
+    addCalendarBtn.dataset.bound = '1';
+
+    addCalendarBtn.addEventListener('click', () => {
+      // Default durations (adjust later if you know exact timings)
+      const ceremonyDurationMinutes = 120;
+      const receptionDurationMinutes = 240;
+
+      const ceremonyEnd = new Date(ceremonyDate.getTime() + ceremonyDurationMinutes * 60 * 1000);
+      const receptionEnd = new Date(receptionDate.getTime() + receptionDurationMinutes * 60 * 1000);
+
+      const icsText = buildWeddingICS({
+        timezone: ceremony_info.timezone,
+        ceremonyStart: ceremonyDate,
+        ceremonyEnd,
+        receptionStart: receptionDate,
+        receptionEnd
+      });
+
+      const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'wedding-invite.ics';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      // Clean up object URL
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    });
   }
 
   const showRsvp = invitationData.guests.length > 0
