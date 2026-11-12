@@ -243,7 +243,7 @@ async function renderAllInfo() {
     return { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd, description };
   }
 
-  if (googleBtn && appleBtn) {
+  if (googleBtn && appleBtn && googleBtn.dataset.bound !== '1' && appleBtn.dataset.bound !== '1') {
     const closeDetails = () => {
       const details = googleBtn.closest('details.calendar-details');
       if (details) details.open = false;
@@ -555,6 +555,98 @@ function setupRsvp(invitationData){
   });
 
   updateSendButton();
+}
+
+function setupAddToCalendarChooser() {
+  const googleBtn = document.getElementById('calendar-google');
+  const appleBtn = document.getElementById('calendar-apple');
+
+  if (!googleBtn || !appleBtn) return;
+  if (googleBtn.dataset.bound === '1' && appleBtn.dataset.bound === '1') return;
+  googleBtn.dataset.bound = '1';
+  appleBtn.dataset.bound = '1';
+
+  function pad2(n){ return String(n).padStart(2,'0'); }
+
+  function formatGoogleUTCDateTime(date) {
+    return (
+      `${date.getUTCFullYear()}${pad2(date.getUTCMonth() + 1)}${pad2(date.getUTCDate())}` +
+      `T${pad2(date.getUTCHours())}${pad2(date.getUTCMinutes())}${pad2(date.getUTCSeconds())}Z`
+    );
+  }
+
+  function makeTimes() {
+    const ceremonyStart = ceremonyTargetDate();
+    const receptionStart = receptionTargetDate();
+    const ceremonyDurationMinutes = 120;
+    const receptionDurationMinutes = 240;
+    const ceremonyEnd = new Date(ceremonyStart.getTime() + ceremonyDurationMinutes * 60 * 1000);
+    const receptionEnd = new Date(receptionStart.getTime() + receptionDurationMinutes * 60 * 1000);
+    return { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd };
+  }
+
+  function closeDetails() {
+    const details = googleBtn.closest('details.calendar-details');
+    if (details) details.open = false;
+  }
+
+  googleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd } = makeTimes();
+    const startUTC = formatGoogleUTCDateTime(ceremonyStart);
+    const endUTC = formatGoogleUTCDateTime(receptionEnd);
+
+    const description =
+      `Ceremony: ${ceremonyStart.toISOString()}\n` +
+      `Reception: ${receptionStart.toISOString()}`;
+
+    const url =
+      'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent('Wedding Day') +
+      '&dates=' + encodeURIComponent(`${startUTC}/${endUTC}`) +
+      '&details=' + encodeURIComponent(description) +
+      '&location=' + encodeURIComponent('London, UK') +
+      '&ctz=' + encodeURIComponent(ceremony_info.timezone);
+
+    closeDetails();
+    window.location.href = url;
+  });
+
+  appleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd } = makeTimes();
+
+    const icsText = buildWeddingICS({
+      timezone: ceremony_info.timezone,
+      ceremonyStart,
+      ceremonyEnd,
+      receptionStart,
+      receptionEnd
+    });
+
+    const blob = new Blob([icsText], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wedding-invite.ics';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    closeDetails();
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupAddToCalendarChooser);
+} else {
+  setupAddToCalendarChooser();
 }
 
 renderAllInfo();
