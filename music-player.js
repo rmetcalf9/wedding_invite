@@ -105,8 +105,36 @@ export function initMusicPlayer({
     const base = Math.max(startAtSeconds, now + 0.01);
 
     const sample = notes[0];
+
+    let midiMin = Infinity;
+    let midiMax = -Infinity;
+    let velMin = Infinity;
+    let velMax = -Infinity;
+    let countZeroMidi = 0;
+    let countAudibleMidi = 0; // >= 21 (A0) roughly
+    let counted = 0;
+
+    for (const n of notes) {
+      const midiNumber =
+        (typeof n.midi === 'number' ? n.midi : null) ??
+        (typeof n.noteNumber === 'number' ? n.noteNumber : null);
+      if (typeof midiNumber !== 'number' || !Number.isFinite(midiNumber)) continue;
+
+      const vel = typeof n.velocity === 'number' ? n.velocity : 0.8;
+
+      counted++;
+      midiMin = Math.min(midiMin, midiNumber);
+      midiMax = Math.max(midiMax, midiNumber);
+      velMin = Math.min(velMin, vel);
+      velMax = Math.max(velMax, vel);
+
+      if (midiNumber === 0) countZeroMidi++;
+      if (midiNumber >= 21) countAudibleMidi++;
+    }
+
     dbg('Scheduling notes', {
       noteCount: notes.length,
+      counted,
       base,
       startAtSeconds,
       now,
@@ -115,25 +143,25 @@ export function initMusicPlayer({
         ? {
             midi: sample.midi,
             noteNumber: sample.noteNumber,
+            velocity: sample.velocity,
             time: sample.time,
             duration: sample.duration,
-            velocity: sample.velocity,
           }
         : null,
+      midiMin,
+      midiMax,
+      velMin,
+      velMax,
+      countZeroMidi,
+      countAudibleMidi,
     });
 
-    let midiMin = Infinity;
-    let midiMax = -Infinity;
-
+    // Actual scheduling pass
     for (const n of notes) {
       const midiNumber =
         (typeof n.midi === 'number' ? n.midi : null) ??
         (typeof n.noteNumber === 'number' ? n.noteNumber : null);
-
       if (typeof midiNumber !== 'number' || !Number.isFinite(midiNumber)) continue;
-
-      midiMin = Math.min(midiMin, midiNumber);
-      midiMax = Math.max(midiMax, midiNumber);
 
       const t0 = base + n.time;
       const t1 = t0 + Math.max(0.01, n.duration || 0.3);
@@ -141,13 +169,15 @@ export function initMusicPlayer({
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
 
-      osc.type = 'triangle';
+      // Use sine for reliable audibility
+      osc.type = 'sine';
       osc.frequency.setValueAtTime(midiNoteToFreq(midiNumber), t0);
 
-      // Envelope to avoid clicks.
-      const attack = 0.005;
-      const release = 0.03;
-      const peak = Math.min(1.2, (n.velocity ?? 0.8) * 1.1);
+      const attack = 0.003;
+      const release = 0.02;
+      // Boost volume; tonejs velocities can be very small.
+      const velocity = typeof n.velocity === 'number' ? n.velocity : 0.8;
+      const peak = Math.min(1.0, (velocity ?? 0.8) * 2.5);
 
       gain.gain.setValueAtTime(0, t0);
       gain.gain.linearRampToValueAtTime(peak, t0 + attack);
@@ -161,12 +191,6 @@ export function initMusicPlayer({
       osc.stop(t1 + 0.05);
 
       scheduledNoteStops.push({ osc, t1 });
-    }
-
-    if (midiMin !== Infinity) {
-      dbg('MIDI range in notes', { midiMin, midiMax });
-    } else {
-      dbg('No valid MIDI noteNumber found in notes');
     }
   }
 
@@ -273,10 +297,34 @@ export function initMusicPlayer({
   }
 
   function toggleMuted() {
-    setMuted(!muted);
-    // If user is unmuting and playback hasn't started yet, try to start.
-    if (!muted) {
+    const nextMuted = !muted;
+    setMuted(nextMuted);
+
+    dbg('toggleMuted', { from: !nextMuted, to: nextMuted });
+
+    // If user unmutes and playback hasn't started yet, try to start.
+    if (!nextMuted) {
       void playIfNeeded();
+      // Play a short test tone so we can confirm audio output.
+      try {
+        if (audioCtx) {
+          const t0 = audioCtx.currentTime + 0.02;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, t0);
+          gain.gain.setValueAtTime(0, t0);
+          gain.gain.linearRampToValueAtTime(0.2, t0 + 0.01);
+          gain.gain.linearRampToValueAtTime(0, t0 + 0.2);
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(t0);
+          osc.stop(t0 + 0.22);
+          dbg('test tone scheduled');
+        }
+      } catch (err) {
+        dbg('test tone failed', err?.name || err);
+      }
     }
   }
 
