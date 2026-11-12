@@ -510,3 +510,37 @@
   opacity: 0;
   pointer-events: none;
 }
+
+/* ==========================================
+   Loading state (before invitation HTML/assets are ready)
+   ========================================== */
+.invitation-loading {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: #78644e;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.invitation-loading-text {
+  font-size: 18px;
+  letter-spacing: 0.2px;
+}
+
+.invitation-spinner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 4px solid rgba(120, 100, 78, 0.18);
+  border-top-color: rgba(120, 100, 78, 0.85);
+  animation: invitationSpin 0.9s linear infinite;
+}
+
+@keyframes invitationSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

@@ -27,6 +27,15 @@
     return;
   }
 
+  // Show a loading animation immediately while data + invitation assets load.
+  root.setAttribute("aria-busy", "true");
+  root.innerHTML = `
+    <div class="invitation-loading" role="status" aria-live="polite">
+      <div class="invitation-spinner" aria-hidden="true"></div>
+      <div class="invitation-loading-text">Preparing your invitation…</div>
+    </div>
+  `;
+
   const scriptUrl = document.currentScript.src;
   const baseUrl = new URL(".", scriptUrl);
 
@@ -109,6 +118,7 @@
     }
 
     root.innerHTML = await response.text();
+    root.removeAttribute("aria-busy");
 
     // ==========================================
     // 6. Populate the invitation
