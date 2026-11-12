@@ -206,41 +206,27 @@ function setupRsvp(invitationData){
   }
 
   function updateSendButton(){
-    const changedButtons = !arraysEqual(currentStatuses, initialStatuses);
-    const changedMessage = messageEl.value !== initialMessage;
-    const anyChange = changedButtons || changedMessage;
-
     const allAnswered = hasAllAnswered();
 
-    // Gate enabling on all guest responses being chosen
-    if (!allAnswered) {
-      sendBtn.disabled = true;
-      setBtnText(responseReceived ? 'Change your RSVP above' : 'Enter RSVP above');
-      return;
-    }
-
-    // Now all guests have been answered
+    // When response_received is false, never show "Update RSVP".
+    // Only enable once ALL guests have been set, then show "Send RSVP".
     if (!responseReceived) {
-      // Initial submission flow
-      if (!anyChange) {
-        // Should be rare (because allAnswered implies buttons changed), but keep safe.
+      if (!allAnswered) {
         sendBtn.disabled = true;
         setBtnText('Enter RSVP above');
         return;
       }
-
-      // If message changed, treat as an update; otherwise send.
-      if (changedMessage) {
-        sendBtn.disabled = false;
-        setBtnText('Update RSVP');
-      } else {
-        sendBtn.disabled = false;
-        setBtnText('Send RSVP');
-      }
+      sendBtn.disabled = false;
+      setBtnText('Send RSVP');
       return;
     }
 
     // response_received === true
+    // Enable when anything changes; otherwise keep disabled.
+    const changedButtons = !arraysEqual(currentStatuses, initialStatuses);
+    const changedMessage = messageEl.value !== initialMessage;
+    const anyChange = changedButtons || changedMessage;
+
     if (!anyChange) {
       sendBtn.disabled = true;
       setBtnText('Change your RSVP above');
