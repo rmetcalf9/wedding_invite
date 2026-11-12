@@ -4,6 +4,17 @@ export function initMusicPlayer({
   loop = true,
   volumeWhenUnmuted = 0.8
 } = {}) {
+  const DEBUG_MUSIC = true;
+  const dbg = (msg, extra) => {
+    if (!DEBUG_MUSIC) return;
+    try {
+      // eslint-disable-next-line no-console
+      console.log(`[music-player] ${msg}`, extra ?? '');
+    } catch {
+      // ignore
+    }
+  };
+
   if (!src) {
     console.warn('[music-player] No src provided');
     return {
@@ -53,12 +64,15 @@ export function initMusicPlayer({
   async function loadMidi() {
     if (midi) return;
 
+    dbg('Loading MIDI', { src });
+
     // Load MIDI parser (ESM) from CDN.
-    // We intentionally use a dynamic import so it only happens if/when music is initialized.
     const mod = await import('https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/+esm');
     const Midi = mod.Midi;
+    dbg('Loaded @tonejs/midi');
 
     const res = await fetch(src);
+    dbg('Fetched MIDI', { ok: res.ok, status: res.status, contentLength: res.headers.get('content-length') });
     if (!res.ok) {
       throw new Error(`Failed to fetch MIDI: ${res.status} ${res.statusText}`);
     }
@@ -66,6 +80,10 @@ export function initMusicPlayer({
     const buf = await res.arrayBuffer();
     midi = new Midi(buf);
     midiDurationSeconds = Number(midi.duration || 0);
+
+    const tracksCount = Array.isArray(midi.tracks) ? midi.tracks.length : 0;
+    const notesCount = allNotes().length;
+    dbg('Parsed MIDI', { midiDurationSeconds, tracksCount, notesCount });
   }
 
   function midiNoteToFreq(noteNumber) {
@@ -84,8 +102,9 @@ export function initMusicPlayer({
     const notes = allNotes();
     const now = audioCtx.currentTime;
 
-    // Safety: don't schedule in the far past.
     const base = Math.max(startAtSeconds, now + 0.01);
+
+    dbg('Scheduling notes', { noteCount: notes.length, base, startAtSeconds, now, muted });
 
     for (const n of notes) {
       const t0 = base + n.time;
@@ -113,7 +132,6 @@ export function initMusicPlayer({
       osc.start(t0);
       osc.stop(t1 + 0.05);
 
-      // Track stop callbacks (for potential cleanup)
       scheduledNoteStops.push({ osc, t1 });
     }
   }
