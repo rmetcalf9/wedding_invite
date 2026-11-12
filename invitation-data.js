@@ -15,7 +15,7 @@ window.WeddingInvitationData = {
 
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 10000);
 
       try {
         const response = await fetch(
