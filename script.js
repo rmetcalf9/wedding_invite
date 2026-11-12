@@ -236,7 +236,7 @@ async function renderAllInfo() {
     const receptionEnd = new Date(receptionStart.getTime() + receptionDurationMinutes * 60 * 1000);
 
     const description =
-      'Wedding Day\n\n' +
+      'Elizabeth & Robert Wedding`\n\n' +
       `Ceremony: ${ceremonyStart.toISOString()} (Europe/London)\n` +
       `Reception: ${receptionStart.toISOString()} (Europe/London)`;
 
@@ -256,7 +256,7 @@ async function renderAllInfo() {
 
       const url =
         `https://calendar.google.com/calendar/render?action=TEMPLATE` +
-        `&text=${encodeURIComponent('Wedding Day')}` +
+        `&text=${encodeURIComponent('Elizabeth & Robert Wedding')}` +
         `&dates=${encodeURIComponent(`${start}/${end}`)}` +
         `&ctz=${encodeURIComponent(ceremony_info.timezone)}` +
         `&details=${encodeURIComponent(description)}` +
@@ -604,7 +604,7 @@ function setupAddToCalendarChooser() {
 
     const url =
       'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-      '&text=' + encodeURIComponent('Wedding Day') +
+      '&text=' + encodeURIComponent('Elizabeth & Robert Wedding') +
       '&dates=' + encodeURIComponent(`${startUTC}/${endUTC}`) +
       '&details=' + encodeURIComponent(description) +
       '&location=' + encodeURIComponent('London, UK') +
