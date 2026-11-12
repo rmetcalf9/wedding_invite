@@ -21,9 +21,9 @@ body: {
       name: "Bob",
       status: "not_answered"    (not_answered,decline,accept)
     },
-    response_received_date:,
-    response_message: text
   ]
+  response_received_date:,
+  rsvp_message: text
 }
 
 
@@ -43,7 +43,6 @@ body: {
       name: "Bob",
       status: "not_answered"    (unknown/decline/accept)
     }
-    response_received_date: null
   ]
 }
 

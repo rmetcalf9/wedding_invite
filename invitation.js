@@ -32,7 +32,7 @@
   root.innerHTML = `
     <div class="invitation-loading" role="status" aria-live="polite">
       <div class="invitation-spinner" aria-hidden="true"></div>
-      <div class="invitation-loading-text">Preparing your invitation…</div>
+      <div class="invitation-loading-text">Preparing a message for you…</div>
     </div>
   `;
 
@@ -127,6 +127,7 @@
     const scene = root.querySelector("#invitation-scene");
     const envelope = root.querySelector("#envelope-open");
     const frontLabel = root.querySelector("#envelope-front-label");
+    const cardIntro = root.querySelector("#card-intro");
     const continueButton = root.querySelector("#invitation-continue");
     const hint = root.querySelector(".envelope-hint");
 
@@ -137,6 +138,12 @@
     // Set the envelope front text before revealing it
     frontLabel.textContent =
       invitationData.envelope_front || "Your Invitation";
+
+    if (invitationData.id === 'none') {
+      cardIntro.textContent = "Dear Guest,"
+    } else {
+      cardIntro.textContent = "Dear " + invitationData.envelope_front + ", "
+    }
 
     // ==========================================
     // 7. Reveal the envelope
