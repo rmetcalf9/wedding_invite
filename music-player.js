@@ -2,9 +2,9 @@ export function initMusicPlayer({
   src,
   mutedInitially = true,
   loop = true,
-  volumeWhenUnmuted = 0.8
+  volumeWhenUnmuted = 0.8,
 } = {}) {
-  const DEBUG_MUSIC = true;
+  const DEBUG_MUSIC = false;
   const dbg = (msg, extra) => {
     if (!DEBUG_MUSIC) return;
     try {
@@ -27,245 +27,97 @@ export function initMusicPlayer({
     };
   }
 
-  let midi = null;
-  let midiDurationSeconds = 0;
-
-  let audioCtx = null;
-  let masterGain = null;
-
-  let started = false;
-
-  let scheduledTimeout = null;
-
-  const scheduledNoteStops = [];
-
-  let applyGain = (muted) => {
-    // If context isn't ready yet, we'll store desired state.
-    if (!masterGain) return;
-    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    if (!muted) {
-      masterGain.gain.linearRampToValueAtTime(volumeWhenUnmuted, audioCtx.currentTime + 0.03);
-    }
-  };
-
   let muted = Boolean(mutedInitially);
+  let player = null;
+  let libLoading = null;
+  let playerConfigured = false;
 
-  function ensureAudioGraph() {
-    if (audioCtx) return;
+  async function loadMidiAudioPlayerLib() {
+    if (player || libLoading) return libLoading;
 
-    const Ctx = window.AudioContext || window.webkitAudioContext;
-    audioCtx = new Ctx();
+    // UMD build. We load it on demand after a user gesture.
+    const url = 'https://cdn.jsdelivr.net/npm/midi-audio-player/dist/midi-audio-player.min.js';
 
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = muted ? 0 : volumeWhenUnmuted;
-    masterGain.connect(audioCtx.destination);
-  }
+    libLoading = new Promise((resolve, reject) => {
+      // If already present, resolve immediately.
+      if (window.MidiAudioPlayer || window.MidiAudioPlayer?.default) {
+        resolve();
+        return;
+      }
 
-  async function loadMidi() {
-    if (midi) return;
+      const s = document.createElement('script');
+      s.src = url;
+      s.async = true;
 
-    dbg('Loading MIDI', { src });
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error(`Failed to load MidiAudioPlayer library from ${url}`));
 
-    // Load MIDI parser (ESM) from CDN.
-    const mod = await import('https://cdn.jsdelivr.net/npm/@tonejs/midi@2.0.28/+esm');
-    const Midi = mod.Midi;
-    dbg('Loaded @tonejs/midi');
-
-    const res = await fetch(src);
-    dbg('Fetched MIDI', { ok: res.ok, status: res.status, contentLength: res.headers.get('content-length') });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch MIDI: ${res.status} ${res.statusText}`);
-    }
-
-    const buf = await res.arrayBuffer();
-    midi = new Midi(buf);
-    midiDurationSeconds = Number(midi.duration || 0);
-
-    const tracksCount = Array.isArray(midi.tracks) ? midi.tracks.length : 0;
-    const notesCount = allNotes().length;
-    dbg('Parsed MIDI', { midiDurationSeconds, tracksCount, notesCount });
-  }
-
-  function midiNoteToFreq(noteNumber) {
-    return 440 * Math.pow(2, (noteNumber - 69) / 12);
-  }
-
-  function allNotes() {
-    if (!midi) return [];
-    // @tonejs/midi represents notes in tracks.
-    return midi.tracks.flatMap((t) => t.notes || []);
-  }
-
-  function scheduleOnce(startAtSeconds) {
-    if (!audioCtx || !masterGain || !midi) return;
-
-    const notes = allNotes();
-    const now = audioCtx.currentTime;
-
-    const base = Math.max(startAtSeconds, now + 0.01);
-
-    const sample = notes[0];
-
-    let midiMin = Infinity;
-    let midiMax = -Infinity;
-    let velMin = Infinity;
-    let velMax = -Infinity;
-    let countZeroMidi = 0;
-    let countAudibleMidi = 0; // >= 21 (A0) roughly
-    let counted = 0;
-
-    for (const n of notes) {
-      const midiNumber =
-        (typeof n.midi === 'number' ? n.midi : null) ??
-        (typeof n.noteNumber === 'number' ? n.noteNumber : null);
-      if (typeof midiNumber !== 'number' || !Number.isFinite(midiNumber)) continue;
-
-      const vel = typeof n.velocity === 'number' ? n.velocity : 0.8;
-
-      counted++;
-      midiMin = Math.min(midiMin, midiNumber);
-      midiMax = Math.max(midiMax, midiNumber);
-      velMin = Math.min(velMin, vel);
-      velMax = Math.max(velMax, vel);
-
-      if (midiNumber === 0) countZeroMidi++;
-      if (midiNumber >= 21) countAudibleMidi++;
-    }
-
-    dbg('Scheduling notes', {
-      noteCount: notes.length,
-      counted,
-      base,
-      startAtSeconds,
-      now,
-      muted,
-      sample: sample
-        ? {
-            midi: sample.midi,
-            noteNumber: sample.noteNumber,
-            velocity: sample.velocity,
-            time: sample.time,
-            duration: sample.duration,
-          }
-        : null,
-      midiMin,
-      midiMax,
-      velMin,
-      velMax,
-      countZeroMidi,
-      countAudibleMidi,
+      document.head.appendChild(s);
     });
 
-    // Actual scheduling pass
-    for (const n of notes) {
-      const midiNumber =
-        (typeof n.midi === 'number' ? n.midi : null) ??
-        (typeof n.noteNumber === 'number' ? n.noteNumber : null);
-      if (typeof midiNumber !== 'number' || !Number.isFinite(midiNumber)) continue;
-
-      const t0 = base + n.time;
-      const t1 = t0 + Math.max(0.01, n.duration || 0.3);
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      // Use sine for reliable audibility
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(midiNoteToFreq(midiNumber), t0);
-
-      const attack = 0.003;
-      const release = 0.02;
-      // Boost volume; tonejs velocities can be very small.
-      const velocity = typeof n.velocity === 'number' ? n.velocity : 0.8;
-      const peak = Math.min(1.0, (velocity ?? 0.8) * 2.5);
-
-      gain.gain.setValueAtTime(0, t0);
-      gain.gain.linearRampToValueAtTime(peak, t0 + attack);
-      gain.gain.setValueAtTime(peak, Math.max(t0 + attack, t1 - release));
-      gain.gain.linearRampToValueAtTime(0, t1);
-
-      osc.connect(gain);
-      gain.connect(masterGain);
-
-      osc.start(t0);
-      osc.stop(t1 + 0.05);
-
-      scheduledNoteStops.push({ osc, t1 });
-    }
+    return libLoading;
   }
 
-  function clearLoopTimeout() {
-    if (scheduledTimeout) {
-      clearTimeout(scheduledTimeout);
-      scheduledTimeout = null;
+  function getMidiAudioPlayerCtor() {
+    return window.MidiAudioPlayer?.default ?? window.MidiAudioPlayer;
+  }
+
+  function applyVolume() {
+    if (!player) return;
+    const v = muted ? 0 : volumeWhenUnmuted;
+    try {
+      // Some versions use setVolume, others may read/write a volume property.
+      if (typeof player.setVolume === 'function') player.setVolume(v);
+      else player.volume = v;
+    } catch (e) {
+      dbg('applyVolume failed', e?.name || e);
     }
   }
 
   async function startPlayback() {
-    if (started) return;
-
-    ensureAudioGraph();
-    dbg('startPlayback: initial audioCtx state', audioCtx?.state);
-
-    // Attempt to resume. If it fails, we must allow a retry on next user gesture.
-    try {
-      dbg('startPlayback: attempting resume', { audioCtxState: audioCtx?.state });
-      await audioCtx.resume();
-      dbg('startPlayback: audioCtx resumed', audioCtx?.state);
-    } catch (err) {
-      dbg('startPlayback: audioCtx.resume() failed', err?.name || err);
-      started = false;
-      throw err;
+    if (muted) {
+      // If user is muted, do not start playback/audio.
+      return;
     }
 
-    // If the context isn't running, don't schedule audio.
-    if (audioCtx.state !== 'running') {
-      dbg('startPlayback: audioCtx not running after resume', { state: audioCtx.state });
-      started = false;
-      throw new Error(`AudioContext state is ${audioCtx.state}`);
+    // Create player only after a user gesture to satisfy Chrome's WebAudio autoplay rules.
+    await loadMidiAudioPlayerLib();
+
+    if (!player) {
+      const MidiAudioPlayer = getMidiAudioPlayerCtor();
+      if (!MidiAudioPlayer) {
+        throw new Error('MidiAudioPlayer constructor not found on window after loading');
+      }
+
+      // Keep options minimal for compatibility.
+      player = new MidiAudioPlayer({ volume: volumeWhenUnmuted });
     }
 
-    applyGain(muted);
-    await loadMidi();
+    if (!playerConfigured) {
+      playerConfigured = true;
 
-    dbg('startPlayback: before scheduling', {
-      audioCtxState: audioCtx?.state,
-      audioCtxCurrentTime: audioCtx?.currentTime,
-      muted,
-      midiDurationSeconds,
-    });
-
-    started = true;
-
-    const startAt = audioCtx.currentTime + 0.05;
-    scheduleOnce(startAt);
-
-    if (loop && midiDurationSeconds > 0) {
-      clearLoopTimeout();
-      const periodMs = Math.max(1000, midiDurationSeconds * 1000);
-      // Reschedule slightly after each loop boundary.
-      scheduledTimeout = setTimeout(function tick() {
-        if (!started) return;
-        if (muted) {
-          applyGain(true);
-        } else {
-          applyGain(false);
+      // Attempt loop support.
+      try {
+        if (typeof player.on === 'function') {
+          player.on('endOfFile', () => {
+            if (!loop) return;
+            try {
+              void player.play(src);
+            } catch (e) {
+              dbg('loop restart failed', e?.name || e);
+            }
+          });
         }
-        const startAgain = audioCtx.currentTime + 0.05;
-        scheduleOnce(startAgain);
-        scheduledTimeout = setTimeout(tick, periodMs);
-      }, periodMs + 50);
+      } catch {
+        // ignore
+      }
     }
-  }
 
-  async function playIfNeeded() {
-    try {
-      await startPlayback();
-    } catch (err) {
-      // Autoplay policy can prevent starting on load; we'll start on first user gesture.
-      console.info('[music-player] Playback blocked; waiting for user gesture.', err?.name || err);
-      // We'll rely on user gesture to call playIfNeeded.
-    }
+    applyVolume();
+
+    dbg('starting playback', { src });
+    await player.play(src);
+    dbg('play() resolved');
   }
 
   function installOneTimeUserGesture() {
@@ -274,7 +126,10 @@ export function initMusicPlayer({
 
     const start = async () => {
       try {
-        await playIfNeeded();
+        await startPlayback();
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.info('[music-player] startPlayback blocked/failed', e?.name || e);
       } finally {
         window.removeEventListener('pointerdown', start, true);
         window.removeEventListener('touchstart', start, true);
@@ -289,51 +144,30 @@ export function initMusicPlayer({
     window.addEventListener('click', start, true);
   }
 
-
-  // Start playback the first time the user interacts with the page.
+  // We only start on user gesture (and only if unmuted).
   installOneTimeUserGesture();
 
   function setMuted(nextMuted) {
     muted = Boolean(nextMuted);
     dbg('setMuted', { muted });
-    if (!masterGain || !audioCtx) return;
-    applyGain(muted);
-    dbg('setMuted applied', {
-      audioCtxState: audioCtx.state,
-      currentGain: masterGain.gain.value,
-    });
+    applyVolume();
+
+    // If the user just unmuted, start immediately (we're still in a user gesture handler).
+    if (!muted) {
+      void startPlayback().catch((e) => {
+        // eslint-disable-next-line no-console
+        console.info('[music-player] start after unmute failed', e?.name || e);
+      });
+    }
   }
 
   function toggleMuted() {
-    const nextMuted = !muted;
-    setMuted(nextMuted);
+    setMuted(!muted);
+  }
 
-    dbg('toggleMuted', { from: !nextMuted, to: nextMuted });
-
-    // If user unmutes and playback hasn't started yet, try to start.
-    if (!nextMuted) {
-      void playIfNeeded();
-      // Play a short test tone so we can confirm audio output.
-      try {
-        if (audioCtx) {
-          const t0 = audioCtx.currentTime + 0.02;
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, t0);
-          gain.gain.setValueAtTime(0, t0);
-          gain.gain.linearRampToValueAtTime(0.2, t0 + 0.01);
-          gain.gain.linearRampToValueAtTime(0, t0 + 0.2);
-          osc.connect(gain);
-          gain.connect(masterGain);
-          osc.start(t0);
-          osc.stop(t0 + 0.22);
-          dbg('test tone scheduled');
-        }
-      } catch (err) {
-        dbg('test tone failed', err?.name || err);
-      }
-    }
+  function playIfNeeded() {
+    // Used by sound-toggle; we rely on gesture-based activation.
+    return startPlayback();
   }
 
   return {
