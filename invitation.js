@@ -170,9 +170,13 @@
       if (!musicUnlocked) {
         musicUnlocked = true;
         try {
-          const musicApi = window.weddingMusic;
-          if (musicApi && typeof musicApi.playIfNeeded === 'function') {
-            void musicApi.playIfNeeded();
+          if (typeof window.weddingRequestMusicUnlock === 'function') {
+            window.weddingRequestMusicUnlock();
+          } else if (
+            window.weddingMusic &&
+            typeof window.weddingMusic.playIfNeeded === 'function'
+          ) {
+            void window.weddingMusic.playIfNeeded();
           }
         } catch {
           // ignore

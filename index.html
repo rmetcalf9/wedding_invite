@@ -25,6 +25,16 @@
       background: white;
     "
   ></div>
+  <script>
+    // Queue music unlock requests until the music player module initialises.
+    window.__weddingMusicUnlockQueued = false;
+    window.weddingRequestMusicUnlock = function weddingRequestMusicUnlock() {
+      window.__weddingMusicUnlockQueued = true;
+      if (window.weddingMusic && typeof window.weddingMusic.playIfNeeded === 'function') {
+        void window.weddingMusic.playIfNeeded();
+      }
+    };
+  </script>
   <script src="invitation-data.js"></script>
   <script src="invitation.js"></script>
   <script defer src="script.js"></script>
@@ -40,9 +50,15 @@
       volumeWhenUnmuted: 0.8
     });
 
-    // Expose for invitation.js so the *first* envelope tap counts as the
-    // user gesture required by Chrome's WebAudio autoplay policies.
+    // Expose for invitation.js.
     window.weddingMusic = music;
+
+    // If the user already unlocked audio by tapping the envelope,
+    // start playback now.
+    if (window.__weddingMusicUnlockQueued) {
+      window.__weddingMusicUnlockQueued = false;
+      void music.playIfNeeded();
+    }
 
     initSoundToggle(music);
   </script>

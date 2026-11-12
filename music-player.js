@@ -22,11 +22,34 @@ export function initMusicPlayer({
   let playerConfigured = false;
   let playbackStarted = false;
 
-  async function loadMidiAudioPlayerLib() {
-    if (player || libLoading) return libLoading;
+  const MIDI_AUDIO_PLAYER_URL =
+    'https://cdn.jsdelivr.net/npm/midi-audio-player/dist/midi-audio-player.min.js';
 
-    const url =
-      'https://cdn.jsdelivr.net/npm/midi-audio-player/dist/midi-audio-player.min.js';
+  function applyVolume(overrideVolume) {
+    if (!player) return;
+
+    const v =
+      typeof overrideVolume === 'number'
+        ? overrideVolume
+        : muted
+          ? 0
+          : volumeWhenUnmuted;
+
+    try {
+      if (typeof player.setVolume === 'function') player.setVolume(v);
+      else player.volume = v;
+    } catch {
+      // ignore
+    }
+  }
+
+  function getMidiAudioPlayerCtor() {
+    return window.MidiAudioPlayer?.default ?? window.MidiAudioPlayer;
+  }
+
+  function loadMidiAudioPlayerLib() {
+    if (player) return Promise.resolve();
+    if (libLoading) return libLoading;
 
     libLoading = new Promise((resolve, reject) => {
       // If already present, resolve immediately.
@@ -36,50 +59,31 @@ export function initMusicPlayer({
       }
 
       const s = document.createElement('script');
-      s.src = url;
+      s.src = MIDI_AUDIO_PLAYER_URL;
       s.async = true;
       s.onload = () => resolve();
       s.onerror = () =>
-        reject(new Error(`Failed to load midi-audio-player from ${url}`));
+        reject(
+          new Error(`Failed to load midi-audio-player from ${MIDI_AUDIO_PLAYER_URL}`),
+        );
       document.head.appendChild(s);
     });
 
     return libLoading;
   }
 
-  function getMidiAudioPlayerCtor() {
-    return window.MidiAudioPlayer?.default ?? window.MidiAudioPlayer;
-  }
-
-  function applyVolume() {
-    if (!player) return;
-    const v = muted ? 0 : volumeWhenUnmuted;
-    try {
-      if (typeof player.setVolume === 'function') player.setVolume(v);
-      else player.volume = v;
-    } catch {
-      // ignore
-    }
-  }
-
   async function startPlayback() {
-    // Called from a user gesture (envelope click / sound button click).
-    // If we've already started playback once, just re-apply volume.
-    if (playbackStarted && player) {
-      applyVolume();
-      return;
-    }
+    // Must be called from a user gesture.
 
     await loadMidiAudioPlayerLib();
 
-    const MidiAudioPlayer = getMidiAudioPlayerCtor();
-    if (!MidiAudioPlayer) {
-      throw new Error(
-        'MidiAudioPlayer constructor not found on window after loading',
-      );
-    }
-
     if (!player) {
+      const MidiAudioPlayer = getMidiAudioPlayerCtor();
+      if (!MidiAudioPlayer) {
+        throw new Error(
+          'MidiAudioPlayer constructor not found on window after loading',
+        );
+      }
       player = new MidiAudioPlayer({ volume: volumeWhenUnmuted });
     }
 
@@ -88,7 +92,6 @@ export function initMusicPlayer({
       try {
         if (typeof player.on === 'function' && loop) {
           player.on('endOfFile', () => {
-            // Loop restart.
             try {
               void player.play(src);
             } catch {
@@ -101,22 +104,38 @@ export function initMusicPlayer({
       }
     }
 
-    // Even if muted, we start to unlock WebAudio on mobile/Chrome.
-    applyVolume();
+    // If we already started, just apply volume and return.
+    if (playbackStarted) {
+      applyVolume();
+      return;
+    }
+
+    // If currently muted, set a *tiny* volume briefly before play() so the
+    // underlying audio graph actually gets activated.
+    if (muted) {
+      const tiny = Math.min(0.02, Math.max(0.001, volumeWhenUnmuted * 0.02));
+      applyVolume(tiny);
+    } else {
+      applyVolume();
+    }
 
     await player.play(src);
+
     playbackStarted = true;
+
+    // Finally apply the intended mute volume.
+    applyVolume();
   }
 
   function setMuted(nextMuted) {
     muted = Boolean(nextMuted);
     applyVolume();
 
-    // If unmuting, attempt to start (we're typically inside a user gesture already).
-    if (!muted) {
-      void startPlayback().catch(() => {
-        // ignore (user gesture may have been insufficient)
-      });
+    // If unmuted before playback has started, attempt to start.
+    if (!muted && !playbackStarted) {
+      // Typically called from a user gesture (sound button click), but
+      // we still guard by not awaiting.
+      void startPlayback().catch(() => {});
     }
   }
 
@@ -125,7 +144,7 @@ export function initMusicPlayer({
   }
 
   function playIfNeeded() {
-    // Invitation.js will call this from the *first* envelope click.
+    // Invitation.js will call this from the envelope gesture.
     return startPlayback();
   }
 
