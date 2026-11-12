@@ -163,16 +163,24 @@
         <p class="eyebrow light">KINDLY REPLY BY 1 MAY 2027</p>
         <h2>Will you <em>join us?</em></h2>
         <p class="rsvp-intro">Please let us know whether you can make it. We can’t wait to hear from you.</p>
-        <form id="rsvp-form" data-email="hello@example.com">
-          <label for="guest-name">Your name</label>
-          <input id="guest-name" name="name" autocomplete="name" required placeholder="Your full name">
-          <label for="guest-email">Email address</label>
-          <input id="guest-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com">
-          <fieldset>
-            <legend>Can you make it?</legend>
-            <label class="choice"><input type="radio" name="attendance" value="Joyfully accepts" required> <span>Joyfully accepts</span></label>
-            <label class="choice"><input type="radio" name="attendance" value="Regretfully declines"> <span>Regretfully declines</span></label>
-          </fieldset>
+
+        <form id="rsvp-form" novalidate>
+          <div id="rsvp-guests" class="rsvp-guests"></div>
+
+          <div id="rsvp-message-wrap" class="rsvp-message-wrap">
+            <label for="rsvp-message">RSVP message</label>
+            <textarea
+              id="rsvp-message"
+              name="rsvp_message"
+              rows="4"
+              placeholder="Write a message (optional)"
+            ></textarea>
+          </div>
+
+          <button id="send-rsvp" class="submit-button" type="button" disabled>
+            <span>Send RSVP</span>
+            <span aria-hidden="true">→</span>
+          </button>
         </form>
       </div>
     </section>

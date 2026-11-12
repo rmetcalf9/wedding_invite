@@ -150,6 +150,152 @@ async function renderAllInfo() {
   if (rsvpNavLink) {
     rsvpNavLink.hidden = !showRsvp;
   }
+
+  if (showRsvp) {
+    setupRsvp(invitationData);
+  }
+}
+
+function normalizeGuestStatus(status){
+  if (status === 'accept') return 'accept';
+  if (status === 'decline') return 'decline';
+  return 'not_answered';
+}
+
+function setupRsvp(invitationData){
+  const guests = Array.isArray(invitationData?.guests) ? invitationData.guests : [];
+  const guestsRoot = document.getElementById('rsvp-guests');
+  const messageEl = document.getElementById('rsvp-message');
+  const sendBtn = document.getElementById('send-rsvp');
+
+  if (!guestsRoot || !messageEl || !sendBtn) return;
+
+  const initialStatuses = guests.map(g => normalizeGuestStatus(g?.status));
+  const initialMessage = invitationData?.rsvp_message || '';
+
+  messageEl.value = initialMessage;
+
+  // Track current selections
+  const currentStatuses = [...initialStatuses];
+
+  function arraysEqual(a, b){
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+
+  function updateSendEnabled(){
+    const changed =
+      !arraysEqual(currentStatuses, initialStatuses) ||
+      messageEl.value !== initialMessage;
+    sendBtn.disabled = !changed;
+  }
+
+  // Render all buttons
+  guestsRoot.innerHTML = '';
+
+  if (guests.length > 1) {
+    const allActions = document.createElement('div');
+    allActions.className = 'rsvp-all-actions';
+
+    const btnAllAccept = document.createElement('button');
+    btnAllAccept.type = 'button';
+    btnAllAccept.textContent = 'All accept';
+    btnAllAccept.addEventListener('click', () => {
+      for (let i = 0; i < currentStatuses.length; i++) currentStatuses[i] = 'accept';
+      // Re-render active states
+      document
+        .querySelectorAll('[data-guest-index] .rsvp-toggle-btn')
+        .forEach(() => {});
+      // Update UI in-place
+      guestsRoot.querySelectorAll('.rsvp-guest-line').forEach(line => {
+        const idx = Number(line.getAttribute('data-guest-index'));
+        const acceptBtn = line.querySelector('.rsvp-toggle-btn[data-status="accept"]');
+        const declineBtn = line.querySelector('.rsvp-toggle-btn[data-status="decline"]');
+        acceptBtn?.classList.toggle('is-active', currentStatuses[idx] === 'accept');
+        declineBtn?.classList.toggle('is-active', currentStatuses[idx] === 'decline');
+      });
+      updateSendEnabled();
+    });
+
+    const btnAllDecline = document.createElement('button');
+    btnAllDecline.type = 'button';
+    btnAllDecline.textContent = 'All decline';
+    btnAllDecline.addEventListener('click', () => {
+      for (let i = 0; i < currentStatuses.length; i++) currentStatuses[i] = 'decline';
+      guestsRoot.querySelectorAll('.rsvp-guest-line').forEach(line => {
+        const idx = Number(line.getAttribute('data-guest-index'));
+        const acceptBtn = line.querySelector('.rsvp-toggle-btn[data-status="accept"]');
+        const declineBtn = line.querySelector('.rsvp-toggle-btn[data-status="decline"]');
+        acceptBtn?.classList.toggle('is-active', currentStatuses[idx] === 'accept');
+        declineBtn?.classList.toggle('is-active', currentStatuses[idx] === 'decline');
+      });
+      updateSendEnabled();
+    });
+
+    allActions.appendChild(btnAllAccept);
+    allActions.appendChild(btnAllDecline);
+    guestsRoot.appendChild(allActions);
+  }
+
+  // Guest lines
+  guests.forEach((g, idx) => {
+    const line = document.createElement('div');
+    line.className = 'rsvp-guest-line';
+    line.setAttribute('data-guest-index', String(idx));
+
+    const name = document.createElement('div');
+    name.className = 'rsvp-guest-name';
+    name.textContent = g?.name || `Guest ${idx + 1}`;
+
+    const actions = document.createElement('div');
+    actions.className = 'rsvp-guest-actions';
+
+    const btnAccept = document.createElement('button');
+    btnAccept.type = 'button';
+    btnAccept.className = 'rsvp-toggle-btn';
+    btnAccept.dataset.status = 'accept';
+    btnAccept.textContent = 'Attending';
+
+    const btnDecline = document.createElement('button');
+    btnDecline.type = 'button';
+    btnDecline.className = 'rsvp-toggle-btn';
+    btnDecline.dataset.status = 'decline';
+    btnDecline.textContent = 'Not Attending';
+
+    function setStatus(newStatus){
+      currentStatuses[idx] = newStatus;
+      btnAccept.classList.toggle('is-active', newStatus === 'accept');
+      btnDecline.classList.toggle('is-active', newStatus === 'decline');
+      updateSendEnabled();
+    }
+
+    btnAccept.addEventListener('click', () => setStatus('accept'));
+    btnDecline.addEventListener('click', () => setStatus('decline'));
+
+    // Apply initial active states
+    const initial = currentStatuses[idx];
+    btnAccept.classList.toggle('is-active', initial === 'accept');
+    btnDecline.classList.toggle('is-active', initial === 'decline');
+
+    actions.appendChild(btnAccept);
+    actions.appendChild(btnDecline);
+
+    line.appendChild(name);
+    line.appendChild(actions);
+    guestsRoot.appendChild(line);
+  });
+
+  messageEl.addEventListener('input', updateSendEnabled);
+
+  sendBtn.addEventListener('click', () => {
+    console.log('send RSVP not implemented');
+  });
+
+  // Initial state
+  updateSendEnabled();
 }
 
 renderAllInfo();

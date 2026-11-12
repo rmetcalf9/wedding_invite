@@ -116,6 +116,92 @@ fieldset { margin: 10px 0 0; padding: 0; border: 0; }
 .choice input { accent-color: #d9d0b9; }
 .submit-button { display: flex; justify-content: space-between; align-items: center; margin-top: 28px; padding: 17px 20px; border: 0; background: #e7e1d4; color: var(--ink); font: 600 10px var(--sans); letter-spacing: .17em; cursor: pointer; transition: background .2s; }
 .submit-button:hover { background: white; }
+
+.submit-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rsvp-guests {
+  margin-top: 10px;
+  display: grid;
+  gap: 12px;
+}
+
+.rsvp-all-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 6px 0 2px;
+  flex-wrap: wrap;
+}
+
+.rsvp-all-actions button {
+  border: 1px solid rgba(255,255,255,.45);
+  background: transparent;
+  color: white;
+  padding: 10px 14px;
+  font: 600 10px var(--sans);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.rsvp-all-actions button:hover {
+  border-color: rgba(255,255,255,.85);
+}
+
+.rsvp-guest-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 12px;
+  border: 1px solid rgba(255,255,255,.22);
+}
+
+.rsvp-guest-name {
+  color: #e4e5df;
+  font: 600 12px var(--sans);
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.rsvp-guest-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.rsvp-toggle-btn {
+  border: 1px solid rgba(255,255,255,.40);
+  background: transparent;
+  color: white;
+  padding: 10px 12px;
+  font: 600 10px var(--sans);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+
+.rsvp-toggle-btn.is-active {
+  background: rgba(231,225,212,.92);
+  border-color: rgba(231,225,212,.92);
+  color: var(--ink);
+}
+
+.rsvp-toggle-btn:hover {
+  border-color: rgba(255,255,255,.85);
+}
+
+.rsvp-message-wrap {
+  margin-top: 18px;
+}
+
+.rsvp-message-wrap label {
+  display: block;
+}
+
 .form-note { margin: 14px 0 0; color: #d6d9d0; font-size: 11px; }
 .site-footer { min-height: 230px; padding: 43px 7% 25px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .footer-mark { color: var(--ink); font-size: 31px; }
