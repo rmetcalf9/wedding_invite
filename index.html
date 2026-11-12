@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="sound-toggle.css">
 </head>
 <body>
   <!-- Wedding invitation overlay -->
@@ -27,6 +28,20 @@
   <script src="invitation-data.js"></script>
   <script src="invitation.js"></script>
   <script defer src="script.js"></script>
+
+  <script type="module">
+    import { initMusicPlayer } from './music-player.js';
+    import { initSoundToggle } from './sound-toggle.js';
+
+    const music = initMusicPlayer({
+      src: './keane-somewhere_only_whe_know.mid',
+      mutedInitially: true,
+      loop: true,
+      volumeWhenUnmuted: 0.8
+    });
+
+    initSoundToggle(music);
+  </script>
   <header class="site-header">
     <a class="wordmark" href="#home" aria-label="Elizabeth and Robert, home">E <span>&</span> R</a>
     <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Open navigation">

@@ -1,0 +1,39 @@
+:root{
+  --sound-toggle-bg: rgba(22, 27, 23, 0.72);
+  --sound-toggle-border: rgba(255, 255, 255, 0.25);
+  --sound-toggle-text: rgba(255, 255, 255, 0.95);
+}
+
+.sound-toggle{
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid var(--sound-toggle-border);
+  background: var(--sound-toggle-bg);
+  color: var(--sound-toggle-text);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 999998;
+  transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.sound-toggle:hover{
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.sound-toggle:active{
+  transform: translateY(0);
+}
+
+.sound-toggle-icon{
+  font-size: 18px;
+  line-height: 1;
+  transform: translateY(1px);
+}
