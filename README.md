@@ -19,7 +19,7 @@ body: {
   guests: [
     {
       name: "Bob",
-      status: "not_answered"    (unknown/decline/accept)
+      status: "not_answered"    (not_answered,decline,accept)
     },
     response_received_date:,
     response_message: text
@@ -44,5 +44,17 @@ body: {
       status: "not_answered"    (unknown/decline/accept)
     }
     response_received_date: null
+  ]
+}
+
+## Send RSVP
+
+structure:
+{
+  id: "abc123",
+  response_message: "ASDFDAS",
+  guests: [
+    name: "Bob",
+    status: "accept"
   ]
 }
