@@ -1,21 +1,8 @@
-
-/*
- * Wedding invitation data layer
- *
- * This is currently mocked. Later, getInvitationData()
- * will make the real API request.
- */
-
 window.WeddingInvitationData = {
 
   async getInvitationData(id) {
 
-    // Simulate the structure returned by the future service.
-    // Replace this function's contents when the endpoint exists.
-    await new Promise(r => setTimeout(r, 2000));
-
-
-    return {
+    const fallback = {
       body: {
         id: id || "none",
         envelope_front: "Your Invitation",
@@ -24,6 +11,36 @@ window.WeddingInvitationData = {
         guests: []
       }
     };
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      try {
+        const response = await fetch(
+          `https://api2.metcarob.com/get_wedding_invite?id=${encodeURIComponent(id || "")}`,
+          {
+            method: "GET",
+            signal: controller.signal
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        responsed = await response.json();
+
+        return {body: responsed};
+
+      } finally {
+        clearTimeout(timeout);
+      }
+
+    } catch (error) {
+      console.error("Failed to retrieve wedding invitation data:", error);
+      return fallback;
+    }
 
   }
 
