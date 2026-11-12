@@ -65,6 +65,46 @@ h2 { font-size: clamp(43px, 6vw, 72px); line-height: 1.12; letter-spacing: -.035
 .calendar-button:hover{ border-color: rgba(255,255,255,.95); background: rgba(255,255,255,.08); }
 .calendar-button:active{ transform: translateY(1px); }
 
+.calendar-details{ position: relative; }
+.calendar-menu{ 
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+  min-width: 220px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.30);
+  background: rgba(22,27,23,.85);
+  box-shadow: 0 22px 60px rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+  border-radius: 6px;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.calendar-details[open] .calendar-menu{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.calendar-choice{
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,.28);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.95);
+  padding: 12px 14px;
+  font: 700 10px var(--sans);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.calendar-choice:hover{ border-color: rgba(255,255,255,.85); background: rgba(255,255,255,.08); }
+.calendar-details summary{ list-style: none; }
+.calendar-details summary::-webkit-details-marker{ display:none; }
+
 @media (max-width: 760px){
   .countdown{ gap: 10px; }
   .countdown-unit{ min-width: 70px; }

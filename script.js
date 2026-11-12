@@ -204,24 +204,78 @@ async function renderAllInfo() {
     receptionTimeEl.textContent = timeFormatter.format(receptionDate);
   }
 
-  // Add to calendar (Google + Apple) - downloads an .ics file with Europe/London TZID
-  const addCalendarBtn = document.getElementById('add-to-calendar');
-  if (addCalendarBtn && !addCalendarBtn.dataset.bound) {
-    addCalendarBtn.dataset.bound = '1';
+  // Add to calendar (Google + Apple) with a provider chooser
+  const googleBtn = document.getElementById('calendar-google');
+  const appleBtn = document.getElementById('calendar-apple');
 
-    addCalendarBtn.addEventListener('click', () => {
-      // Default durations (adjust later if you know exact timings)
-      const ceremonyDurationMinutes = 120;
-      const receptionDurationMinutes = 240;
+  function formatGoogleLocalDateTime(date, timeZone) {
+    const fmt = new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      hourCycle: 'h23'
+    });
 
-      const ceremonyEnd = new Date(ceremonyDate.getTime() + ceremonyDurationMinutes * 60 * 1000);
-      const receptionEnd = new Date(receptionDate.getTime() + receptionDurationMinutes * 60 * 1000);
+    const parts = Object.fromEntries(fmt.formatToParts(date).map(p => [p.type, p.value]));
+    return `${parts.year}${parts.month}${parts.day}T${parts.hour}${parts.minute}${parts.second}`;
+  }
 
+  function makeCalendarStrings() {
+    // Default durations (adjust later if you know exact timings)
+    const ceremonyDurationMinutes = 120;
+    const receptionDurationMinutes = 240;
+
+    const ceremonyStart = ceremonyDate;
+    const receptionStart = receptionDate;
+    const ceremonyEnd = new Date(ceremonyStart.getTime() + ceremonyDurationMinutes * 60 * 1000);
+    const receptionEnd = new Date(receptionStart.getTime() + receptionDurationMinutes * 60 * 1000);
+
+    const description =
+      'Wedding Day\n\n' +
+      `Ceremony: ${ceremonyStart.toISOString()} (Europe/London)\n` +
+      `Reception: ${receptionStart.toISOString()} (Europe/London)`;
+
+    return { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd, description };
+  }
+
+  if (googleBtn && appleBtn) {
+    const closeDetails = () => {
+      const details = googleBtn.closest('details.calendar-details');
+      if (details) details.open = false;
+    };
+
+    googleBtn.addEventListener('click', () => {
+      const { ceremonyStart, receptionEnd, description } = makeCalendarStrings();
+      const start = formatGoogleLocalDateTime(ceremonyStart, ceremony_info.timezone);
+      const end = formatGoogleLocalDateTime(receptionEnd, ceremony_info.timezone);
+
+      const url =
+        `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+        `&text=${encodeURIComponent('Wedding Day')}` +
+        `&dates=${encodeURIComponent(`${start}/${end}`)}` +
+        `&ctz=${encodeURIComponent(ceremony_info.timezone)}` +
+        `&details=${encodeURIComponent(description)}` +
+        `&location=${encodeURIComponent('London, UK')}` +
+        `&sf=true&output=xml`;
+
+      closeDetails();
+
+      // Open Google Calendar. On mobile, navigating in the same tab is more reliable.
+      window.location.href = url;
+    });
+
+    appleBtn.addEventListener('click', () => {
+      const { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd } = makeCalendarStrings();
       const icsText = buildWeddingICS({
         timezone: ceremony_info.timezone,
-        ceremonyStart: ceremonyDate,
+        ceremonyStart,
         ceremonyEnd,
-        receptionStart: receptionDate,
+        receptionStart,
         receptionEnd
       });
 
@@ -237,8 +291,11 @@ async function renderAllInfo() {
 
       // Clean up object URL
       setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+      closeDetails();
     });
   }
+
 
   const showRsvp = invitationData.guests.length > 0
   // console.log('showRsvp', showRsvp)

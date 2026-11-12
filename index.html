@@ -83,9 +83,15 @@
       </div>
 
       <div class="calendar-add">
-        <button id="add-to-calendar" class="calendar-button" type="button">
-          <span>Add to calendar</span>
-        </button>
+        <details class="calendar-details">
+          <summary class="calendar-button" id="add-to-calendar" aria-label="Add to calendar">
+            <span>Add to calendar</span>
+          </summary>
+          <div class="calendar-menu" role="menu" aria-label="Choose calendar app">
+            <button class="calendar-choice" id="calendar-google" type="button">Google Calendar</button>
+            <button class="calendar-choice" id="calendar-apple" type="button">Apple Calendar</button>
+          </div>
+        </details>
       </div>
     </section>
 
