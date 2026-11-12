@@ -7,13 +7,15 @@ const ceremony_info = {
   time_hour: 14,
   time_minute: 0,
   duration_minutes: 120,
+  location: 'Church of St William of York, Forest Hill, 4 Brockley Park, London SE23 1PS',
   timezone: 'Europe/London'
 };
 
 const reception_info = {
   time_hour: 16,
   time_minute: 0,
-  duration_minutes: 240
+  duration_minutes: 240,
+  location: 'St Laurence Church, Catford, 37 Bromley Rd, London SE6 2TS'
 };
 
 // Derive date information from the numeric configuration
@@ -132,7 +134,7 @@ function buildWeddingICS({ timezone, ceremonyStart, ceremonyEnd, receptionStart,
     `SUMMARY:Wedding Ceremony\n` +
     `DTSTART;TZID=${timezone}:${ceremonyDtStart}\n` +
     `DTEND;TZID=${timezone}:${ceremonyDtEnd}\n` +
-    `LOCATION:Church of St William of York, Forest Hill, 4 Brockley Park, London SE23 1PS\n` +
+    `LOCATION:${ceremony_info.location}\n` +
     `DESCRIPTION:Wedding ceremony\n` +
     `END:VEVENT\n\n` +
     `BEGIN:VEVENT\n` +
@@ -141,7 +143,7 @@ function buildWeddingICS({ timezone, ceremonyStart, ceremonyEnd, receptionStart,
     `SUMMARY:Wedding Reception\n` +
     `DTSTART;TZID=${timezone}:${receptionDtStart}\n` +
     `DTEND;TZID=${timezone}:${receptionDtEnd}\n` +
-    `LOCATION:St Laurence Church, Catford, 37 Bromley Rd, London SE6 2TS\n` +
+    `LOCATION:${reception_info.location}\n` +
     `DESCRIPTION:Wedding reception\n` +
     `END:VEVENT\n\n` +
     `END:VCALENDAR\n`
@@ -467,15 +469,25 @@ function setupRsvp(invitationData){
 }
 
 function setupAddToCalendarChooser() {
-  const googleBtn = document.getElementById('calendar-google');
+  const googleCeremonyBtn = document.getElementById('calendar-google-ceremony');
+  const googleReceptionBtn = document.getElementById('calendar-google-reception');
   const appleBtn = document.getElementById('calendar-apple');
 
-  if (!googleBtn || !appleBtn) return;
-  if (googleBtn.dataset.bound === '1' && appleBtn.dataset.bound === '1') return;
-  googleBtn.dataset.bound = '1';
+  if (!googleCeremonyBtn || !googleReceptionBtn || !appleBtn) return;
+
+  const alreadyBound =
+    googleCeremonyBtn.dataset.bound === '1' &&
+    googleReceptionBtn.dataset.bound === '1' &&
+    appleBtn.dataset.bound === '1';
+  if (alreadyBound) return;
+
+  googleCeremonyBtn.dataset.bound = '1';
+  googleReceptionBtn.dataset.bound = '1';
   appleBtn.dataset.bound = '1';
 
-  function pad2(n){ return String(n).padStart(2,'0'); }
+  function pad2(n) {
+    return String(n).padStart(2, '0');
+  }
 
   function formatGoogleUTCDateTime(date) {
     return (
@@ -487,39 +499,67 @@ function setupAddToCalendarChooser() {
   function makeTimes() {
     const ceremonyStart = ceremonyTargetDate();
     const receptionStart = receptionTargetDate();
+
     const ceremonyDurationMinutes = ceremony_info.duration_minutes;
     const receptionDurationMinutes = reception_info.duration_minutes;
+
     const ceremonyEnd = new Date(ceremonyStart.getTime() + ceremonyDurationMinutes * 60 * 1000);
     const receptionEnd = new Date(receptionStart.getTime() + receptionDurationMinutes * 60 * 1000);
+
     return { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd };
   }
 
-  function closeDetails() {
-    const details = googleBtn.closest('details.calendar-details');
+  function closeDetailsFrom(el) {
+    const details = el.closest('details.calendar-details');
     if (details) details.open = false;
   }
 
-  googleBtn.addEventListener('click', (e) => {
+  googleCeremonyBtn.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const { ceremonyStart, ceremonyEnd, receptionStart, receptionEnd } = makeTimes();
+    const { ceremonyStart, ceremonyEnd } = makeTimes();
     const startUTC = formatGoogleUTCDateTime(ceremonyStart);
-    const endUTC = formatGoogleUTCDateTime(receptionEnd);
+    const endUTC = formatGoogleUTCDateTime(ceremonyEnd);
 
-    const description =
-      `Ceremony: ${ceremonyStart.toISOString()}\n` +
-      `Reception: ${receptionStart.toISOString()}`;
+    const description = `Wedding Ceremony
+${ceremonyStart.toISOString()}`;
 
     const url =
       'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-      '&text=' + encodeURIComponent('Elizabeth & Robert Wedding') +
+      '&text=' + encodeURIComponent('Wedding Ceremony — Elizabeth & Robert') +
       '&dates=' + encodeURIComponent(`${startUTC}/${endUTC}`) +
       '&details=' + encodeURIComponent(description) +
-      '&location=' + encodeURIComponent('London, UK') +
+      '&location=' + encodeURIComponent(ceremony_info.location) +
       '&ctz=' + encodeURIComponent(ceremony_info.timezone);
 
-    closeDetails();
+    closeDetailsFrom(e.currentTarget);
+
+    const win = window.open(url, '_blank', 'noopener,noreferrer');
+    if (win) win.focus();
+  });
+
+  googleReceptionBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const { receptionStart, receptionEnd } = makeTimes();
+    const startUTC = formatGoogleUTCDateTime(receptionStart);
+    const endUTC = formatGoogleUTCDateTime(receptionEnd);
+
+    const description = `Wedding Reception
+${receptionStart.toISOString()}`;
+
+    const url =
+      'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+      '&text=' + encodeURIComponent('Wedding Reception — Elizabeth & Robert') +
+      '&dates=' + encodeURIComponent(`${startUTC}/${endUTC}`) +
+      '&details=' + encodeURIComponent(description) +
+      '&location=' + encodeURIComponent(reception_info.location) +
+      '&ctz=' + encodeURIComponent(ceremony_info.timezone);
+
+    closeDetailsFrom(e.currentTarget);
+
     const win = window.open(url, '_blank', 'noopener,noreferrer');
     if (win) win.focus();
   });
@@ -549,7 +589,7 @@ function setupAddToCalendarChooser() {
     a.remove();
 
     setTimeout(() => URL.revokeObjectURL(url), 1500);
-    closeDetails();
+    closeDetailsFrom(e.currentTarget);
   });
 }
 
