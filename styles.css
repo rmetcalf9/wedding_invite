@@ -263,3 +263,36 @@ fieldset { margin: 10px 0 0; padding: 0; border: 0; }
 [hidden] {
   display: none !important;
 }
+
+/* RSVP submit success toast */
+.rsvp-toast {
+  position: fixed;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: rgba(40, 43, 37, 0.92);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.35);
+  padding: 14px 16px;
+  font: 600 12px var(--sans);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  box-shadow: 0 18px 50px rgba(0,0,0,.22);
+  opacity: 0;
+  animation: rsvpToastIn .35s ease forwards;
+}
+
+.rsvp-toast.is-exit {
+  animation: rsvpToastOut .25s ease forwards;
+}
+
+@keyframes rsvpToastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes rsvpToastOut {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+}

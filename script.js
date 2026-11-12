@@ -195,6 +195,20 @@ function setupRsvp(invitationData){
     else sendBtn.textContent = text;
   }
 
+  function showThankYouToast(){
+    const toast = document.createElement('div');
+    toast.className = 'rsvp-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    toast.textContent = 'Thank you for your response';
+    document.body.appendChild(toast);
+
+    window.setTimeout(() => {
+      toast.classList.add('is-exit');
+      window.setTimeout(() => toast.remove(), 250);
+    }, 3200);
+  }
+
   function arraysEqual(a, b){
     if (a.length !== b.length) return false;
     for (let i = 0; i < a.length; i++) {
