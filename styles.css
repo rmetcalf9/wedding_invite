@@ -79,7 +79,7 @@ h2 { font-size: clamp(43px, 6vw, 72px); line-height: 1.12; letter-spacing: -.035
 .calendar-button:active{ transform: translateY(1px); }
 
 .calendar-details{ position: relative; }
-.calendar-menu{ 
+.calendar-menu{
   margin-top: 10px;
   display: grid;
   gap: 8px;
@@ -160,8 +160,30 @@ h2 { font-size: clamp(43px, 6vw, 72px); line-height: 1.12; letter-spacing: -.035
 .travel-detail { border-top: 1px solid var(--line); padding-top: 17px; margin-top: 20px; }
 .travel-detail h3 { margin-bottom: 4px; font-size: 21px; }
 .travel-detail p { margin: 0; color: var(--muted); font-size: 13px; }
-.rsvp { background: var(--sage-dark); color: white; padding-top: 115px; padding-bottom: 120px; }
-.rsvp-inner { max-width: 570px; margin: 0 auto; }
+.rsvp {
+  position: relative;
+  overflow: hidden;
+}
+
+.rsvp::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("hero-top.jpg") center 42%/cover;
+  opacity: 0.9;
+  transform: scale(1.02);
+  z-index: 0;
+}
+
+.rsvp > * {
+  position: relative;
+  z-index: 1;
+}
+.rsvp-inner {
+  max-width: 570px; margin: 0 auto;
+  background-color: #9e558d;
+  padding: 20px;
+}
 .rsvp h2 { margin-bottom: 16px; }
 .rsvp h2 em { color: #d9d0b9; }
 .rsvp-intro { max-width: 430px; color: #d6d9d0; }
@@ -255,6 +277,7 @@ fieldset { margin: 10px 0 0; padding: 0; border: 0; }
 
 .rsvp-message-wrap {
   margin-top: 18px;
+  color: #d6d9d0;
 }
 
 .rsvp-message-wrap label {
