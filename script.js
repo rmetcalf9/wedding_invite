@@ -7,7 +7,7 @@ const ceremony_info = {
   time_hour: 14,
   time_minute: 0,
   duration_minutes: 80,
-  location: 'Church of St William of York, Forest Hill, 4 Brockley Park, London SE23 1PS',
+  location: 'Parish Church of St William of York, Forest Hill, 4 Brockley Park, London SE23 1PS',
   timezone: 'Europe/London'
 };
 
