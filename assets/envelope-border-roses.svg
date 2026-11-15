@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" preserveAspectRatio="none">
+  <defs>
+    <style>
+      .rose{fill:none;stroke:#7a2f6a;stroke-width:4;opacity:.55}
+      .leaf{fill:none;stroke:#7a2f6a;stroke-width:3;opacity:.45}
+      .petal{fill:none;stroke:#7a2f6a;stroke-width:3;opacity:.35}
+    </style>
+  </defs>
+
+  <!-- Top-left rose -->
+  <g transform="translate(65 65) scale(1.1)">
+    <path class="rose" d="M30,10 C20,25 20,40 30,50 C40,40 40,25 30,10Z"/>
+    <path class="petal" d="M30,18 C24,26 25,35 30,42 C35,35 36,26 30,18Z"/>
+    <path class="leaf" d="M8,46 C18,38 24,34 30,34"/>
+    <path class="leaf" d="M52,46 C42,38 36,34 30,34"/>
+  </g>
+
+  <!-- Top-right rose -->
+  <g transform="translate(505 55) scale(1.0) rotate(8)">
+    <path class="rose" d="M30,10 C20,25 20,40 30,50 C40,40 40,25 30,10Z"/>
+    <path class="petal" d="M30,18 C24,26 25,35 30,42 C35,35 36,26 30,18Z"/>
+    <path class="leaf" d="M8,46 C18,38 24,34 30,34"/>
+    <path class="leaf" d="M52,46 C42,38 36,34 30,34"/>
+  </g>
+
+  <!-- Bottom-left rose -->
+  <g transform="translate(70 295) scale(1.0) rotate(-6)">
+    <path class="rose" d="M30,10 C20,25 20,40 30,50 C40,40 40,25 30,10Z"/>
+    <path class="petal" d="M30,18 C24,26 25,35 30,42 C35,35 36,26 30,18Z"/>
+    <path class="leaf" d="M8,46 C18,38 24,34 30,34"/>
+    <path class="leaf" d="M52,46 C42,38 36,34 30,34"/>
+  </g>
+
+  <!-- Bottom-right rose -->
+  <g transform="translate(500 300) scale(1.1) rotate(4)">
+    <path class="rose" d="M30,10 C20,25 20,40 30,50 C40,40 40,25 30,10Z"/>
+    <path class="petal" d="M30,18 C24,26 25,35 30,42 C35,35 36,26 30,18Z"/>
+    <path class="leaf" d="M8,46 C18,38 24,34 30,34"/>
+    <path class="leaf" d="M52,46 C42,38 36,34 30,34"/>
+  </g>
+
+  <!-- Small corner dots / blossoms -->
+  <g fill="#7a2f6a" opacity=".25">
+    <circle cx="145" cy="70" r="5"/>
+    <circle cx="455" cy="70" r="5"/>
+    <circle cx="145" cy="330" r="5"/>
+    <circle cx="455" cy="330" r="5"/>
+  </g>
+</svg>
