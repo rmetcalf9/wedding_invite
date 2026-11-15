@@ -190,13 +190,29 @@
   overflow: hidden;
 }
 
-.invitation-card::before {
+.invitation-card::before,
+.invitation-card::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: url("assets/card-plum-roses.svg") center / cover no-repeat;
-  opacity: 0.55;
+  top: 6px;
+  width: 92px;
+  height: 110px;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.85;
   pointer-events: none;
+}
+
+.invitation-card::before {
+  left: 6px;
+  background-image: url("assets/card-corners-plum-rose.svg");
+  transform: rotate(-8deg);
+}
+
+.invitation-card::after {
+  right: 6px;
+  background-image: url("assets/card-corners-plum-rose.svg");
+  transform: scaleX(-1) rotate(8deg);
 }
 
 .invitation-card .card-content {

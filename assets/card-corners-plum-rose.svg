@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" fill="none">
+  <!--
+    Stylized, stencil-like rose-and-stem corner ornament (plum).
+    Inspired by single-rose tattoo linework, but drawn as an original simplified vector.
+  -->
+
+  <!-- Main lines -->
+  <g stroke="#6b1f5c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Stem -->
+    <path d="M110 52 C104 78 104 105 110 132 C116 160 120 186 116 214"/>
+
+    <!-- Leaves -->
+    <path d="M110 138 C76 145 58 170 64 188 C69 201 92 198 104 182"/>
+    <path d="M110 138 C144 145 161 170 155 188 C150 201 127 198 116 182"/>
+    <path d="M110 200 C98 202 90 214 96 224 C101 232 113 228 118 218"/>
+    <path d="M110 200 C124 202 134 214 128 224 C122 232 112 227 105 218"/>
+
+    <!-- Rose head outer silhouette -->
+    <path d="M110 26
+             C92 28 80 42 80 58
+             C80 76 94 82 104 93
+             C92 103 84 118 92 132
+             C101 147 123 145 132 132
+             C140 118 132 103 119 93
+             C129 82 145 76 142 58
+             C140 41 129 28 110 26Z"/>
+
+    <!-- Petal/stencil internal swirl -->
+    <path d="M110 44 C101 52 98 64 104 74 C110 84 124 86 129 77"/>
+    <path d="M110 52 C98 60 95 72 102 82 C109 92 125 94 132 84"/>
+    <path d="M110 64 C104 69 104 78 110 85 C116 92 126 92 132 86"/>
+  </g>
+
+  <!-- Light shading lines for a stencil feel -->
+  <g stroke="#9b74b5" stroke-width="4" stroke-linecap="round" opacity="0.55">
+    <path d="M110 34 C96 41 92 58 100 70"/>
+    <path d="M110 34 C125 40 129 58 121 71"/>
+    <path d="M100 93 C92 102 88 116 96 127"/>
+    <path d="M120 93 C130 102 134 116 126 127"/>
+  </g>
+</svg>
