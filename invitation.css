@@ -96,8 +96,8 @@
 .envelope-front {
   overflow: hidden;
   z-index: 2;
-  background: #e9dfd0;
-  border: 1px solid #d5c7b5;
+  background: #f4c5f2;
+  border: 1px solid #dca3db;
   box-shadow: 0 14px 35px rgba(65, 49, 32, 0.15);
 }
 
@@ -139,7 +139,7 @@
 
 .envelope-back {
   transform: rotateY(180deg);
-  background: #e9dfd0;
+  background: #f4c5f2;
 
   /*
     The card can extend above the envelope,
@@ -153,8 +153,8 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: #e9dfd0;
-  border: 1px solid #d5c7b5;
+  background: #f4c5f2;
+  border: 1px solid #dca3db;
   box-shadow: 0 14px 35px rgba(65, 49, 32, 0.15);
 }
 
@@ -173,8 +173,8 @@
   transform: translate(-50%, 180px);
   transition: transform var(--paper-duration) ease;
 
-  background: #fffdf8;
-  border: 1px solid #ded3c3;
+  background: #f8ebfc;
+  border: 1px solid #e8c6f4;
   box-shadow: 0 5px 18px rgba(65, 49, 32, 0.16);
 }
 
@@ -250,8 +250,8 @@
   z-index: 3;
   background: linear-gradient(
     145deg,
-    #eee5d8 0%,
-    #e4d8c7 100%
+    #f7d9f5 0%,
+    #eeb6e8 100%
   );
   clip-path: polygon(
     0 42%,
@@ -260,7 +260,7 @@
     100% 100%,
     0 100%
   );
-  border-bottom: 1px solid #d5c7b5;
+  border-bottom: 1px solid #cf93d0;
 }
 
 /* ==========================================
@@ -277,8 +277,8 @@
 
   background: linear-gradient(
     180deg,
-    #f0e7da 0%,
-    #e2d5c3 100%
+    #f9dbf7 0%,
+    #e8b7e4 100%
   );
 
   clip-path: polygon(
