@@ -102,15 +102,6 @@
   position: relative;
 }
 
-.envelope-front::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("assets/envelope-border-roses.svg") center / cover no-repeat;
-  opacity: 0.32;
-  pointer-events: none;
-  mix-blend-mode: multiply;
-}
 
 .front-border {
   position: absolute;
@@ -190,30 +181,6 @@
   overflow: hidden;
 }
 
-.invitation-card::before,
-.invitation-card::after {
-  content: "";
-  position: absolute;
-  top: 6px;
-  width: 92px;
-  height: 110px;
-  background-repeat: no-repeat;
-  background-size: contain;
-  opacity: 0.85;
-  pointer-events: none;
-}
-
-.invitation-card::before {
-  left: 6px;
-  background-image: url("assets/card-corners-plum-rose.svg");
-  transform: rotate(-8deg);
-}
-
-.invitation-card::after {
-  right: 6px;
-  background-image: url("assets/card-corners-plum-rose.svg");
-  transform: scaleX(-1) rotate(8deg);
-}
 
 .invitation-card .card-content {
   z-index: 1;
