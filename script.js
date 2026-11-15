@@ -15,7 +15,7 @@ const reception_info = {
   time_hour: 16,
   time_minute: 0,
   duration_minutes: 240,
-  location: 'St Laurence Church, Catford, 37 Bromley Rd, London SE6 2TS'
+  location: 'St Laurence Church Hall, Catford, 37 Bromley Rd, London SE6 2TS'
 };
 
 // Derive date information from the numeric configuration
